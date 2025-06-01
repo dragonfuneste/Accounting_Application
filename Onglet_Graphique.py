@@ -31,9 +31,7 @@ class OngletGraphique(ttk.Frame):
 
     def switch_mode(self):
         self.mode = not self.mode
-        for widget in self.canvas_frame.winfo_children():
-            widget.destroy()
-        self.display_graph()
+        self.update_graph()
     def update_graph(self) :
         self.info_label.destroy();
         for widget in self.canvas_frame.winfo_children():
@@ -49,9 +47,11 @@ class OngletGraphique(ttk.Frame):
             self.info_label = ttk.Label(self, text="", foreground="blue")
             self.info_label.pack(pady=5)
             fig, self.ax = plt.subplots(figsize=(6, 4))
+            fig.subplots_adjust(right=0.8)  # Par exemple, réduire la largeur du graphique à 80%
+
             self.Plot_Suivis(fig, self.ax)
         else:
-            fig = plt.figure(figsize=(10, 8))
+            fig = plt.figure(figsize=(8, 8))
             self.ax1 = fig.add_subplot(2, 2, 1)
             self.ax2 = fig.add_subplot(2, 2, 2)
             self.ax3 = fig.add_subplot(2, 2, 3)
@@ -63,12 +63,14 @@ class OngletGraphique(ttk.Frame):
         self.canvas = FigureCanvasTkAgg(fig, master=self.canvas_frame)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-        
-        self.canvas.mpl_connect("button_press_event", self.on_click)
-
+        if self.mode:
+            self.canvas.mpl_connect("button_press_event", self.on_click)
+        else :  
+            self.canvas.mpl_connect("pick_event", self.on_click)
     def Plot_Suivis(self, fig, ax):
         # Assure la conversion des dates et le tri chronologique
-        self.df['Date'] = pd.to_datetime(self.df['Date'])
+        self.df.loc[:, 'Date'] = pd.to_datetime(self.df['Date'], errors='coerce', dayfirst=True)
+
         df_sorted = self.df.sort_values('Date')
         
         # Crée une colonne avec valeurs signées (+revenus/-dépenses)
@@ -99,7 +101,7 @@ class OngletGraphique(ttk.Frame):
         ax.set_title("Évolution du solde cumulé")
         ax.set_xlabel("Date")
         ax.set_ylabel("Montant cumulé")
-        ax.legend()
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         ax.grid(True)
         
         # Formatage des dates sur l'axe X
@@ -150,9 +152,10 @@ class OngletGraphique(ttk.Frame):
                 return
     
             try:
-                xdata = self.df_sorted.index
+                dates = self.df_sorted['Date']
                 clicked_date = matplotlib.dates.num2date(event.xdata).replace(tzinfo=None)
-                closest_date = min(xdata, key=lambda d: abs(d - clicked_date))
+                closest_date = min(dates, key=lambda d: abs(d - clicked_date))
+
     
                 if not hasattr(self, 'df') or self.df.empty:
                     print("⚠️ Aucun df de référence disponible")
@@ -270,7 +273,7 @@ class OngletGraphique(ttk.Frame):
             # Tracé de la courbe
             self.ax.plot(df['Date'], df['Cumul'], 
                         marker='o', linestyle='-', 
-                        label=f"{nom} (max: {df['Cumul'].max():.2f}€)")
+                        label=f"{nom}")
             courbe_tracee = True
     
         # Personnalisation du graphique
@@ -284,7 +287,8 @@ class OngletGraphique(ttk.Frame):
             self.ax.set_xlabel("Date")
             self.ax.set_ylabel("Solde cumulé (€)")
             self.ax.axhline(0, color='red', linestyle='--', alpha=0.5)  # Ligne zéro
-            self.ax.legend()
+            self.ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
             self.ax.grid(True)
     
         self.canvas.draw()

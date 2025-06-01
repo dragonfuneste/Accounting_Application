@@ -14,12 +14,14 @@ from Onglet_Resumee import OngletResumer
 from Onglet_Virement import OngletVirement
 from Onglet_Tableau import OngletTableau
 from Onglet_Graphique import OngletGraphique
+import os
+
 class Test(tk.Tk):
-    def __init__(self, liste_compte):
+    def __init__(self):
         super().__init__()
         self.selected_account = 0
         
-        self.liste_compte = liste_compte
+        self.liste_compte = self.Detecter_Compte()
         self.dataframes = {}  # Dictionnaire pour stocker tous les DataFrames
         self.current_account = None
         
@@ -102,6 +104,8 @@ class Test(tk.Tk):
             self.Update()
 
     def Update(self) :
+        self.liste_compte = self.Detecter_Compte()
+        self.load_all_data()
         self.Update_Filtrage()
         self.page_resumer.update_data_Date()
         self.page_tableau.update_tableau()
@@ -117,9 +121,11 @@ class Test(tk.Tk):
         self.start_date_old = self.start_date
         self.end_date_old = self.end_date
         
-# Liste des comptes disponibles
-liste_compte = ["Compte_Courant.xlsx", "Livret_Bleu.xlsx", "Compte_Jeune.xlsx"]
+    def Detecter_Compte(self,directory='./'):
+        return [f for f in os.listdir(directory) if f.endswith('.xlsx') and os.path.isfile(os.path.join(directory, f))]
+        
+
 
 # Lancement de l'application
-app = Test(liste_compte)
+app = Test()
 app.mainloop()
