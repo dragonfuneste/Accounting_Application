@@ -67,20 +67,46 @@ class OngletGraphique(ttk.Frame):
         self.canvas.mpl_connect("button_press_event", self.on_click)
 
     def Plot_Suivis(self, fig, ax):
-        self.df.loc[:, 'Date'] = pd.to_datetime(self.df['Date'])
+        # Assure la conversion des dates et le tri chronologique
+        self.df['Date'] = pd.to_datetime(self.df['Date'])
         df_sorted = self.df.sort_values('Date')
-        df_sorted = df_sorted.groupby('Date').sum(numeric_only=True)
-        self.df_sorted = df_sorted  # Sauvegarde pour clics
-
-        if df_sorted.empty:
-            ax.text(0.5, 0.5, "Aucune donnée", ha='center', va='center', transform=ax.transAxes, fontsize=14)
-            return
-
-        ax.plot(df_sorted.index, df_sorted['Valeur'], marker="o", linestyle="-")
-        ax.set_title("Suivi Temporel")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Valeur cumulée")
         
+        # Crée une colonne avec valeurs signées (+revenus/-dépenses)
+        df_sorted['Valeur_Signee'] = df_sorted.apply(
+            lambda row: row['Valeur'] if row['Type'].lower() in ['revenu', 'income'] else -row['Valeur'],
+            axis=1
+        )
+        
+        # Calcule la somme cumulée
+        df_sorted['Cumul'] = df_sorted['Valeur_Signee'].cumsum()
+        
+        # Nettoie le graphique précédent
+        ax.clear()
+        
+        # Cas sans données
+        if df_sorted.empty:
+            ax.text(0.5, 0.5, "Aucune donnée", ha='center', va='center', fontsize=14)
+            return
+    
+        # Tracé de la courbe cumulée
+        ax.plot(df_sorted['Date'], df_sorted['Cumul'], 
+                marker='o', linestyle='-', color='blue', label='Solde cumulé')
+        
+        # Ligne horizontale à zéro pour référence
+        ax.axhline(0, color='red', linestyle='--', alpha=0.5)
+        
+        # Personnalisation du graphique
+        ax.set_title("Évolution du solde cumulé")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Montant cumulé")
+        ax.legend()
+        ax.grid(True)
+        
+        # Formatage des dates sur l'axe X
+        fig.autofmt_xdate()
+        
+        # Sauvegarde des données tracées pour interactivité
+        self.df_sorted = df_sorted
 
     def Plot_Cammembert(self, fig):
         self.df_depenses = self.df[self.df['Type'] == 'Depense']
@@ -185,16 +211,20 @@ class OngletGraphique(ttk.Frame):
             self.ax4.set_title(f"Revenu '{label}'")
 
         self.canvas.draw()
+    
     def afficher_suivis_tout(self):
+        """Affiche le suivi cumulé de tous les fichiers, en différenciant revenus et dépenses."""
         
+        # Vérification des données
         if not hasattr(self.app, 'dataframes'):
             print("❌ self.app n'a pas d'attribut 'dataframes'")
             return
     
         dataframes = self.app.dataframes
     
+        # Préparation des données (gestion dict/list)
         if isinstance(dataframes, dict):
-            df_items = dataframes.items()  # (nom, df)
+            df_items = dataframes.items()
         elif isinstance(dataframes, list):
             df_items = [(f"Fichier {i+1}", df) for i, df in enumerate(dataframes)]
         else:
@@ -203,42 +233,58 @@ class OngletGraphique(ttk.Frame):
     
         today = pd.Timestamp.today().normalize()
         self.ax.clear()
-    
         courbe_tracee = False
     
         for nom, df in df_items:
             if df.empty:
                 continue
     
+            # Copie et préparation du DataFrame
             df = df.copy()
             df['Date'] = pd.to_datetime(df['Date'])
             df = df.sort_values('Date')
     
+            # Application du signe selon le type (revenu/dépense)
+            if 'Type' in df.columns:
+                df['Valeur_Signee'] = df.apply(
+                    lambda row: row['Valeur'] if str(row['Type']).lower() in ['revenu', 'income'] else -row['Valeur'],
+                    axis=1
+                )
+            else:
+                # Par défaut si pas de colonne Type
+                df['Valeur_Signee'] = df['Valeur']
+    
+            # Calcul du cumul
+            df['Cumul'] = df['Valeur_Signee'].cumsum()
+    
+            # Complétion jusqu'à aujourd'hui si nécessaire
             last_date = df['Date'].max().normalize()
             if last_date < today:
-                df_grouped = df.groupby('Date').sum(numeric_only=True)
-                last_value = df_grouped.loc[last_date]['Valeur']
                 new_row = {
                     'Date': today,
-                    'Valeur': last_value,
-                    'Type': df[df['Date'] == last_date]['Type'].iloc[-1] if 'Type' in df.columns else '',
-                    'Categorie': df[df['Date'] == last_date]['Categorie'].iloc[-1] if 'Categorie' in df.columns else '',
-                    'Classe': df[df['Date'] == last_date]['Classe'].iloc[-1] if 'Classe' in df.columns else ''
+                    'Cumul': df['Cumul'].iloc[-1],  # Garde la dernière valeur cumulée
+                    'Valeur_Signee': 0  # Aucun mouvement ce jour
                 }
                 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     
-            df_grouped = df.groupby('Date').sum(numeric_only=True)
-            self.ax.plot(df_grouped.index, df_grouped['Valeur'], marker='o', linestyle='-', label=nom)
+            # Tracé de la courbe
+            self.ax.plot(df['Date'], df['Cumul'], 
+                        marker='o', linestyle='-', 
+                        label=f"{nom} (max: {df['Cumul'].max():.2f}€)")
             courbe_tracee = True
     
+        # Personnalisation du graphique
         if not courbe_tracee:
-            self.ax.text(0.5, 0.5, "Aucune donnée", ha='center', va='center',
-                         transform=self.ax.transAxes, fontsize=14)
+            self.ax.text(0.5, 0.5, "Aucune donnée", 
+                        ha='center', va='center',
+                        transform=self.ax.transAxes, 
+                        fontsize=14)
         else:
-            self.ax.set_title("Suivi temporel - Par fichier")
+            self.ax.set_title("Évolution du solde cumulé (Revenus - Dépenses)")
             self.ax.set_xlabel("Date")
-            self.ax.set_ylabel("Valeur cumulée")
+            self.ax.set_ylabel("Solde cumulé (€)")
+            self.ax.axhline(0, color='red', linestyle='--', alpha=0.5)  # Ligne zéro
             self.ax.legend()
+            self.ax.grid(True)
     
         self.canvas.draw()
-    
