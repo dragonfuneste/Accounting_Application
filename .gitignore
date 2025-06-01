@@ -1,0 +1,6 @@
+build/
+dist/
+backup/*
+!backup/.gitkeep  
+*.xlsx
+*.spec

@@ -21,7 +21,7 @@ class OngletTableau(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent)
         self.app = app
-        self.df = self.app.df_original
+        self.df = self.app.df_original.copy()
         self.Tri = False
         self.tree = None
         self.entry_editor = None  # Champ d'édition flottant
@@ -34,15 +34,6 @@ class OngletTableau(ttk.Frame):
         self.df = self.df.sort_values(by=column, ascending=self.Tri)
         self.Tri = not self.Tri  # Inverse l'ordre du tri
         self.remplir_tableau()  # Met à jour l'affichage
-        
-
-    def remplir_tableau(self):
-        """Remplit le tableau avec les données du DataFrame."""
-        
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-        for i, row in self.df.iterrows():
-            self.tree.insert("", "end", values=list(row), iid=str(i))  # ID = index du DataFrame
 
     def creation_layout(self):
         """Création du Treeview et gestion des événements."""
@@ -80,20 +71,11 @@ class OngletTableau(ttk.Frame):
         
         
         self.remplir_tableau()
-
-
-    def rechercher(self, event=None):
-        """Filtre les résultats du tableau en fonction du texte entré."""
-        mot_cle = self.entry_recherche.get().strip().lower()
-        
-        if not mot_cle:
-            self.df = self.app.df_original.copy()  # Réinitialisation si champ vide
-        else:
-            self.df = self.app.df_original[
-                self.app.df_original.apply(lambda row: row.astype(str).str.contains(mot_cle, case=False, na=False).any(), axis=1)
-            ]  # Filtre par mot-clé
-    
-        self.remplir_tableau()
+    def convertir_dates(self):
+        """Convertit la colonne 'Date' en datetime de manière sûre."""
+        if 'Date' in self.df.columns:
+            self.df = self.df.copy()  # S'assurer que ce n'est pas une vue
+            self.df.loc[:, 'Date'] = pd.to_datetime(self.df['Date'])  # Utilisation de .loc
         
     def update_tableau(self):
         self.df = self.app.df_original.copy()  
@@ -129,7 +111,7 @@ class OngletTableau(ttk.Frame):
         return valeur_selectionnee.get()  # Retourne une date formatée "YYYY-MM-DD"
     
     def editer_cellule(self, event):
-        """Permet d'éditer une cellule avec un champ texte ou une liste déroulante pour certaines colonnes."""
+        """Permet d’éditer une cellule avec un champ texte ou une liste déroulante pour certaines colonnes."""
         item_id = self.tree.selection()
         if not item_id:
             return
@@ -143,7 +125,17 @@ class OngletTableau(ttk.Frame):
         x, y, width, height = self.tree.bbox(item_id, self.selected_column)
         colonne_actuelle = self.df.columns[self.selected_column]
     
-        if colonne_actuelle.lower() in ["categorie", "classe","type"]:
+        if colonne_actuelle.lower() in ["date"]:
+            # Ouvre une fenêtre pour choisir une date
+            nouvelle_date = self.choisir_date(valeur_actuelle)
+            if nouvelle_date:
+                self.df.iloc[self.selected_row, self.selected_column] = nouvelle_date
+                self.remplir_tableau()  # Mise à jour immédiate du tableau
+                self.convertir_dates()
+                if not pd.api.types.is_datetime64_any_dtype(self.df['Date']):
+                    self.df.loc[:, 'Date'] = pd.to_datetime(self.df['Date'], errors='coerce')  # 'coerce' pour gérer les formats invalides
+    
+        elif colonne_actuelle.lower() in ["categorie", "classe", "type"]:
             valeurs_existantes = self.df[colonne_actuelle].dropna().unique().tolist()
     
             self.entry_editor = ttk.Combobox(self.tree, values=valeurs_existantes)
@@ -151,17 +143,20 @@ class OngletTableau(ttk.Frame):
             self.entry_editor.set(valeur_actuelle)
             self.entry_editor.focus()
     
-            # Lie la sélection à la validation automatique
             self.entry_editor.bind("<<ComboboxSelected>>", self.valider_modification)
-            self.entry_editor.bind("<Return>", self.valider_modification)  # Validation aussi sur Entrée
+            self.entry_editor.bind("<Return>", self.valider_modification)
+    
         else:
             self.entry_editor = tk.Entry(self.tree)
             self.entry_editor.place(x=x, y=y, width=width, height=height)
             self.entry_editor.insert(0, valeur_actuelle)
             self.entry_editor.focus()
             self.entry_editor.bind("<Return>", self.valider_modification)
-            self.entry_editor.bind("<Escape>", self.annuler_modification)  
+            self.entry_editor.bind("<Escape>", self.annuler_modification)
             self.tree.bind("<Button-1>", self.annuler_si_clique_exterieur)
+    
+        self.remplir_tableau()
+
                 
         # Mise à jour immédiate de l'affichage
         self.remplir_tableau()
@@ -202,7 +197,9 @@ class OngletTableau(ttk.Frame):
         # Demander la date via le calendrier
         if "Date" in self.df.columns:
             nouvelles_valeurs[self.df.columns.get_loc("Date")] = self.choisir_date()
-    
+            self.convertir_dates()
+            if not pd.api.types.is_datetime64_any_dtype(self.df['Date']):
+                self.df.loc[:, 'Date'] = pd.to_datetime(self.df['Date'], errors='coerce')  # 'coerce' pour gérer les formats invalides
         nouvelle_ligne = pd.DataFrame([nouvelles_valeurs], columns=self.df.columns)
     
         # Ajoute la ligne en tête du DataFrame
@@ -230,9 +227,32 @@ class OngletTableau(ttk.Frame):
         return sorted(self.df[column_name].dropna().unique().tolist())
     
 
+    def rechercher(self, event=None):
+        """Filtre les résultats du tableau en fonction du texte entré sans modifier le DataFrame original."""
+        mot_cle = self.entry_recherche.get().strip().lower()
+        
+        if not mot_cle:
+            # Affiche toutes les données si le champ de recherche est vide
+            self.remplir_tableau(self.app.df_original.copy())
+        else:
+            # Filtre le DataFrame original pour l'affichage uniquement
+            df_filtre = self.app.df_original[
+                self.app.df_original.apply(lambda row: row.astype(str).str.contains(mot_cle, case=False, na=False).any(), axis=1)
+            ]
+            self.remplir_tableau(df_filtre)
+
+    def remplir_tableau(self, df=None):
+        """Remplit le tableau avec les données du DataFrame fourni ou de self.df par défaut."""
+        if df is None:
+            df = self.df
+        
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        for i, row in df.iterrows():
+            self.tree.insert("", "end", values=list(row), iid=str(i))  # ID = index du DataFrame
+    
     def Sauvegarder(self):
         """Sauvegarde le fichier sous forme de backup et met à jour l'original."""
-        
         source = self.app.current_account  # Nom du fichier source
         dest = f"./backup/backup_{source}"  # Fichier de sauvegarde dans le dossier backup
         
@@ -247,9 +267,8 @@ class OngletTableau(ttk.Frame):
         # Sauvegarde l'ancien fichier
         df_source.to_excel(dest, index=False)
     
-        # Met à jour le fichier source avec les nouvelles données
-        df_final = pd.concat([self.df], ignore_index=True)
-        df_final.to_excel(source, index=False)
+        # Met à jour le fichier source avec les données originales (self.df)
+        self.df.to_excel(source, index=False)
     
         self.app.load_all_data()
         messagebox.showinfo("Succès", f"Sauvegarde réussie :\nOriginal: {source}\nBackup: {dest}")
