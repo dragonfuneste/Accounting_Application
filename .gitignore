@@ -1,6 +1,21 @@
+<<<<<<< Updated upstream
 build/
 dist/
 backup/*
 !backup/.gitkeep  
 *.xlsx
+=======
+
+build/
+dist/
+
+
+backup/*
+!backup/.gitkeep  # (optionnel) fichier vide pour que le dossier existe dans le repo
+
+
+*.xlsx
+
+
+>>>>>>> Stashed changes
 *.spec
