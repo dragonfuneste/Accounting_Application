@@ -14,6 +14,7 @@ from Onglet_Resumee import OngletResumer
 from Onglet_Virement import OngletVirement
 from Onglet_Tableau import OngletTableau
 from Onglet_Graphique import OngletGraphique
+from Onglet_Compte import OngletCompte
 import os
 
 class Test(tk.Tk):
@@ -80,17 +81,19 @@ class Test(tk.Tk):
         self.notebook.pack(expand=True, fill="both")
 
         # Ajouter les onglets
+        
         self.page_resumer = OngletResumer(self.notebook, self)
         self.page_tableau = OngletTableau(self.notebook, self)
         self.page_Graphique = OngletGraphique(self.notebook, self)  
-        
+        self.page_Compte = OngletCompte(self.notebook,self)
         self.page_virement = OngletVirement(self.notebook, self)
         
         
-        self.notebook.add(self.page_resumer, text="Résumé")
-        self.notebook.add(self.page_virement, text="Virement")
+        self.notebook.add(self.page_resumer, text="Recap")       
         self.notebook.add(self.page_tableau, text="Tableau")
         self.notebook.add(self.page_Graphique, text="Graphique")
+        self.notebook.add(self.page_virement, text="Virement")
+        self.notebook.add(self.page_Compte, text="Compte")
         
         self.Update()
 
@@ -105,6 +108,9 @@ class Test(tk.Tk):
 
     def Update(self) :
         self.liste_compte = self.Detecter_Compte()
+        self.dataframes = {}
+        self.current_account = None
+        self.combo_compte['values'] = self.liste_compte
         self.load_all_data()
         self.Update_Filtrage()
         self.page_resumer.update_data_Date()

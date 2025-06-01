@@ -1,74 +1,98 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jun  1 18:37:21 2025
-
-@author: loube
-"""
-
-import openpyxl
 import os
+import tkinter as tk
+from tkinter import ttk, messagebox
+import datetime
+import openpyxl
 
-def Detecter_Compte(self,directory):
-    """
-    Retourne une liste des fichiers .xlsx présents dans le dossier spécifié.
+class OngletCompte(tk.Frame):
+    def __init__(self, parent, app):
+        super().__init__(parent)
+        self.app =app
+        self.dossier = '.'  # dossier des fichiers
 
-    :param directory: Chemin du dossier à explorer
-    :return: Liste des noms de fichiers .xlsx
-    """
-    return [f for f in os.listdir(directory) if f.endswith('.xlsx') and os.path.isfile(os.path.join(directory, f))]
+        self.label_title = tk.Label(self, text="Comptes disponibles (dernière modification)", font=("Arial", 14))
+        self.label_title.pack(pady=5)
 
+        self.listbox = tk.Listbox(self, width=50)
+        self.listbox.pack(pady=5)
 
-def creer_fichier_xlsx(self,nom_fichier):
-    """
-    Crée un fichier .xlsx avec des colonnes : Date, Intitule, Categorie, Classe, Type, Valeur.
+        frame_suppr = tk.Frame(self)
+        frame_suppr.pack(pady=10)
+        tk.Label(frame_suppr, text="Compte à supprimer :").pack(side='left')
+        self.combo_suppr = ttk.Combobox(frame_suppr, state="readonly", width=30)
+        self.combo_suppr.pack(side='left', padx=5)
+        btn_suppr = tk.Button(frame_suppr, text="Supprimer", command=self.supprimer_compte)
+        btn_suppr.pack(side='left')
 
-    :param nom_fichier: Nom du fichier à créer (avec ou sans extension .xlsx)
-    """
-    if not nom_fichier.endswith('.xlsx'):
-        nom_fichier += '.xlsx'
-    
-    # Créer un classeur et une feuille active
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Feuille1"
+        frame_creer = tk.Frame(self)
+        frame_creer.pack(pady=10)
+        tk.Label(frame_creer, text="Nom nouveau compte :").pack(side='left')
+        self.entry_creer = tk.Entry(frame_creer, width=30)
+        self.entry_creer.pack(side='left', padx=5)
+        btn_creer = tk.Button(frame_creer, text="Créer", command=self.creer_compte)
+        btn_creer.pack(side='left')
 
-    # Ajouter les en-têtes de colonnes
-    colonnes = ["Date", "Intitule", "Categorie", "Classe", "Type", "Valeur"]
-    ws.append(colonnes)
+        self.maj_liste_comptes()
 
-    # Sauvegarder le fichier
-    wb.save(nom_fichier)
-    print(f"Fichier créé : {nom_fichier}")
+    def maj_liste_comptes(self):
+        self.app.Update()
+        fichiers = self.app.liste_compte
 
-def supprimer_fichier_xlsx(self,nom_fichier):
-    """
-    Supprime un fichier .xlsx donné s'il existe.
+        self.listbox.delete(0, tk.END)
+        comptes = []
+        for f in fichiers:
+            chemin = os.path.join(self.dossier, f)
+            date_modif = datetime.datetime.fromtimestamp(os.path.getmtime(chemin))
+            date_str = date_modif.strftime("%Y-%m-%d %H:%M:%S")
+            self.listbox.insert(tk.END, f"{f} - modifié le {date_str}")
+            comptes.append(f)
 
-    :param nom_fichier: Nom du fichier à supprimer (avec ou sans extension .xlsx)
-    """
-    if not nom_fichier.endswith('.xlsx'):
-        nom_fichier += '.xlsx'
-    
-    if os.path.isfile(nom_fichier):
-        os.remove(nom_fichier)
-        print(f"Fichier supprimé : {nom_fichier}")
-    else:
-        print(f"Fichier non trouvé : {nom_fichier}")
+        self.combo_suppr['values'] = comptes
+        self.combo_suppr.set('')
 
-# Exemple d'utilisation :
-chemin_dossier = "./"  # ou un chemin absolu comme "C:/Users/TonNom/Documents"
-fichiers_xlsx = detect_xlsx_files(chemin_dossier)
-print("Fichiers .xlsx trouvés :", fichiers_xlsx)
+    def creer_fichier_xlsx(self, nom_fichier):
+        if not nom_fichier.endswith('.xlsx'):
+            nom_fichier += '.xlsx'
 
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Feuille1"
+        colonnes = ["Date", "Intitule", "Categorie", "Classe", "Type", "Valeur"]
+        ws.append(colonnes)
+        wb.save(nom_fichier)
+        print(f"Fichier créé : {nom_fichier}")
 
+    def supprimer_fichier_xlsx(self, nom_fichier):
+        if not nom_fichier.endswith('.xlsx'):
+            nom_fichier += '.xlsx'
 
+        if os.path.isfile(nom_fichier):
+            os.remove(nom_fichier)
+            print(f"Fichier supprimé : {nom_fichier}")
+        else:
+            print(f"Fichier non trouvé : {nom_fichier}")
 
-creer_fichier_xlsx("Test")
-fichiers_xlsx = detect_xlsx_files(chemin_dossier)
-print("Fichiers .xlsx trouvés :", fichiers_xlsx)
+    def supprimer_compte(self):
+        compte = self.combo_suppr.get()
+        if not compte:
+            messagebox.showwarning("Attention", "Veuillez sélectionner un compte à supprimer.")
+            return
+        confirm = messagebox.askyesno("Confirmer", f"Supprimer le compte '{compte}' ?")
+        if confirm:
+            self.supprimer_fichier_xlsx(compte)
+            self.maj_liste_comptes()
 
-
-
-supprimer_fichier_xlsx(fichiers_xlsx[-1])
-fichiers_xlsx = detect_xlsx_files(chemin_dossier)
-print("Fichiers .xlsx trouvés :", fichiers_xlsx)
+    def creer_compte(self):
+        nom = self.entry_creer.get().strip()
+        if not nom:
+            messagebox.showwarning("Attention", "Veuillez entrer un nom de compte.")
+            return
+        if not nom.endswith('.xlsx'):
+            nom += '.xlsx'
+        if os.path.exists(nom):
+            messagebox.showerror("Erreur", "Un compte avec ce nom existe déjà.")
+            return
+        self.creer_fichier_xlsx(nom)
+        messagebox.showinfo("Succès", f"Compte '{nom}' créé.")
+        self.entry_creer.delete(0, tk.END)
+        self.maj_liste_comptes()
