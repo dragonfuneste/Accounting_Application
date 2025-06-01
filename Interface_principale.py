@@ -80,8 +80,9 @@ class Test(tk.Tk):
         # Ajouter les onglets
         self.page_resumer = OngletResumer(self.notebook, self)
         self.page_tableau = OngletTableau(self.notebook, self)
-        self.page_virement = OngletVirement(self.notebook, self)
         self.page_Graphique = OngletGraphique(self.notebook, self)  
+        
+        self.page_virement = OngletVirement(self.notebook, self)
         
         
         self.notebook.add(self.page_resumer, text="Résumé")
@@ -104,7 +105,7 @@ class Test(tk.Tk):
         self.Update_Filtrage()
         self.page_resumer.update_data_Date()
         self.page_tableau.update_tableau()
-        
+        self.page_Graphique.update_graph()
 
     def Update_Filtrage(self) : 
         self.start_date = self.page_resumer.start_date.get_date()

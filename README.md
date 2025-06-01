@@ -4,7 +4,6 @@ Application en Python pour faire mes comptes
 
 A IMPLEMENTER ENCORE 
 
--> Un onglet Graphique
 -> Sur l'interface main pouvoir crée des compte en supprimer au besoin pouvoir,...
 -> Un onglet pour faire des estimation,...
 -> Trouver un joli logo pour le .exe 
