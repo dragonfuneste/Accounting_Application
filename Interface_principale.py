@@ -5,19 +5,17 @@ Created on Fri May 30 12:06:08 2025
 @author: loube
 """
 
-import tkinter as tk
-from tkinter import ttk
-import pandas as pd
-from tkcalendar import DateEntry
-from datetime import datetime
+
 from Onglet_Resumee import OngletResumer
 from Onglet_Virement import OngletVirement
 from Onglet_Tableau import OngletTableau
 from Onglet_Graphique import OngletGraphique
 from Onglet_Compte import OngletCompte
-import os
 
-class Test(tk.Tk):
+from Librairie import os,tk,ttk,pd,dt
+
+
+class Application(tk.Tk):
     def __init__(self):
         super().__init__()
         self.selected_account = 0
@@ -34,8 +32,8 @@ class Test(tk.Tk):
         
         
         
-        self.start_date =datetime(2025, 2, 9)
-        self.end_date = datetime.today().date()
+        self.start_date =dt(2025, 2, 9)
+        self.end_date = dt.today().date()
         self.start_date_old = self.start_date
         self.end_date_old = self.end_date
         
@@ -133,5 +131,5 @@ class Test(tk.Tk):
 
 
 # Lancement de l'application
-app = Test()
+app = Application()
 app.mainloop()

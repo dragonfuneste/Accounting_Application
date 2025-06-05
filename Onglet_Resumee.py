@@ -1,9 +1,6 @@
-import tkinter as tk
-from tkinter import ttk
-import pandas as pd
-from tkcalendar import DateEntry
-from datetime import datetime
 
+
+from Librairie import tk,ttk,pd,DateEntry,dt
 
 class OngletResumer(ttk.Frame):
     def __init__(self, parent, app):

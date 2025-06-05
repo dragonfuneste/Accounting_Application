@@ -1,18 +1,13 @@
-import tkinter as tk
-from tkinter import ttk
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pandas as pd
-import matplotlib
 
-"""
-REFAIRE la gestion du click quand on change de compte
-"""
+
+
+from Librairie import tk,ttk,plt,FigureCanvasTkAgg,pd
 
 class OngletGraphique(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent)
         self.app = app
+        plt.close()
         self.mode = True  # True = Suivi temporel, False = Camemberts
         self.build_interface()
 
@@ -39,6 +34,7 @@ class OngletGraphique(ttk.Frame):
         self.display_graph()
         
     def display_graph(self):
+        plt.close()
         self.df = self.app.df  # Récupère les données
 
         if self.mode:

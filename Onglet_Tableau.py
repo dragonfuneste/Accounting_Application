@@ -5,17 +5,9 @@ Created on Fri May 30 12:43:56 2025
 @author: loube
 """
 
-import os
-import shutil
-import pandas as pd
-import numpy as np
-import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog, filedialog
-from tkcalendar import DateEntry
-from datetime import datetime
 
 
-
+from Librairie import os, shutil, pd,np,tk,ttk,messagebox,simpledialog,filedialog,DateEntry,dt
 
 class OngletTableau(ttk.Frame):
     def __init__(self, parent, app):
@@ -92,7 +84,7 @@ class OngletTableau(ttk.Frame):
         if valeur_initiale:
             if isinstance(valeur_initiale, str):  
                 try:
-                    valeur_initiale = datetime.strptime(valeur_initiale, "%Y-%m-%d").date()
+                    valeur_initiale = dt.strptime(valeur_initiale, "%Y-%m-%d").date()
                 except ValueError:
                     pass  # Garde la valeur telle quelle si la conversion échoue
             date_picker.set_date(valeur_initiale)

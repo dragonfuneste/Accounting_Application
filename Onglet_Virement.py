@@ -17,20 +17,15 @@ Created on Fri May 30 12:20:43 2025
         à la date de fin
 """
         
-import tkinter as tk
-from tkinter import ttk
-from tkcalendar import DateEntry
-import pandas as pd
-from datetime import datetime
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+
+from Librairie import ttk, DateEntry, pd, plt, dt, FigureCanvasTkAgg
 
 class OngletVirement(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent)
         self.app = app
-        
+        plt.close()
         
         self.nom_affiche_vers_fichier = {
             nom.replace(".xlsx", ""): nom for nom in self.app.liste_compte
@@ -66,7 +61,7 @@ class OngletVirement(ttk.Frame):
         # Date du virement
         ttk.Label(frame_top, text="Date :").grid(row=0, column=6, padx=5)
         self.date_virement = DateEntry(frame_top, width=12)
-        self.date_virement.set_date(datetime.today())
+        self.date_virement.set_date(dt.today())
         self.date_virement.grid(row=0, column=7, padx=5)
 
         # Bouton d'ajout
