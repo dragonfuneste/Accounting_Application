@@ -1,8 +1,7 @@
-import os
-import tkinter as tk
-from tkinter import ttk, messagebox
-import datetime
-import openpyxl
+
+
+
+from Librairie import os,tk,ttk,messagebox,openpyxl,dt
 
 class OngletCompte(tk.Frame):
     def __init__(self, parent, app):
@@ -42,7 +41,7 @@ class OngletCompte(tk.Frame):
         comptes = []
         for f in fichiers:
             chemin = os.path.join(self.dossier, f)
-            date_modif = datetime.datetime.fromtimestamp(os.path.getmtime(chemin))
+            date_modif = dt.fromtimestamp(os.path.getmtime(chemin))
             date_str = date_modif.strftime("%Y-%m-%d %H:%M:%S")
             self.listbox.insert(tk.END, f"{f} - modifié le {date_str}")
             comptes.append(f)
