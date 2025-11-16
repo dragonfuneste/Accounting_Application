@@ -1,1 +1,1 @@
-pyinstaller --onefile --windowed --icon=logo.ico Interface_principale.py
+pyinstaller --windowed --icon=logo.ico Budget_APP.py

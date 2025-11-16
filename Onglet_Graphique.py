@@ -2,7 +2,7 @@
 
 
 from Librairie import tk,ttk,plt,FigureCanvasTkAgg,pd
-
+import matplotlib
 class OngletGraphique(ttk.Frame):
     def __init__(self, parent, app):
         super().__init__(parent)

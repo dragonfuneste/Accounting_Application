@@ -1,0 +1,3 @@
+D:/Fichier/GitHub/Python_Budget/Notebook/CSV/Compte_Courant.xlsx open
+D:/Fichier/GitHub/Python_Budget/Notebook/CSV/Compte_Jeune.xlsx blocked
+D:/Fichier/GitHub/Python_Budget/Notebook/CSV/Livret_Bleu.xlsx open
