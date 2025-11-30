@@ -1,1 +1,1 @@
-pyinstaller --onefile --windowed --icon=logo.ico Interface_principale.py
+pyinstaller --onefile --windowed --icon=compte.ico ./Interface_Principale.py

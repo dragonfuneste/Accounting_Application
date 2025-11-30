@@ -1,135 +1,163 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri May 30 12:06:08 2025
+from Fonction import *
+from Compte import Compte
+from Librairie import *
+from Interface_Tableau import Onglet_Tableau, AutocompleteCombobox
+from Interface_Compte import Onglet_Comptes
+from Interface_Resume import Onglet_Resume
+from Onglet_Graphique import Onglet_Graphique
+from Interface_Cumule import Onglet_Cumule
+from Interface_Virement import Interface_Virement
+import tkinter as tk
+from tkinter import ttk, messagebox, simpledialog
+import pandas as pd
+import os
+from datetime import datetime
 
-@author: loube
-"""
-
-
-from Onglet_Resumee import OngletResumer
-from Onglet_Virement import OngletVirement
-from Onglet_Tableau import OngletTableau
-from Onglet_Graphique import OngletGraphique
-from Onglet_Compte import OngletCompte
-
-from Librairie import os,tk,ttk,pd,dt
-
-
-class Application(tk.Tk):
+class Gestionnaire_Onglets(tk.Tk):
+    """Classe principale qui gère la barre supérieure et les onglets."""
+    
     def __init__(self):
         super().__init__()
-        self.selected_account = 0
-        
-        self.liste_compte = self.Detecter_Compte()
-        self.dataframes = {}  # Dictionnaire pour stocker tous les DataFrames
-        self.current_account = None
-        
-        # Charger tous les DataFrames au démarrage
-        self.load_all_data()
-        
-        self.title("Application Budget V2")
-        self.geometry("1400x700")
-        
-        
-        
-        self.start_date =dt(2025, 2, 9)
-        self.end_date = dt.today().date()
-        self.start_date_old = self.start_date
-        self.end_date_old = self.end_date
-        
-         
-        self.Interface_init()
+        self.title("Gestion des Comptes")
+        self.geometry("800x600")
 
-    def load_all_data(self):
-        """Charge tous les fichiers Excel dans un dictionnaire"""
-        for compte in self.liste_compte:
-            try:
-                df = pd.read_excel(compte)
-                df.columns = df.columns.str.strip()
-                df['Date'] = pd.to_datetime(df['Date']).dt.date
-                self.dataframes[compte] = df
-            except Exception as e:
-                print(f"Erreur lors du chargement de {compte}: {str(e)}")
-        
-        # Définir le premier compte comme courant par défaut
-        if self.liste_compte:
-            self.current_account = self.liste_compte[0]
-            self.df = self.dataframes[self.current_account].copy()
-            self.df_original = self.dataframes[self.current_account].copy()
-        
-    
-    def Interface_init(self):
-        """Création de l'interface avec la sélection du compte et les onglets"""
-        frame_select = ttk.Frame(self)
-        frame_select.pack(fill="x", padx=10, pady=5)
+        # Configurer la fenêtre pour qu'elle soit redimensionnable
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-        label_compte = ttk.Label(frame_select, text="Sélectionnez un compte :")
-        label_compte.pack(side="left")
+        # Dictionnaire pour stocker les objets Compte
+        self.comptes = {}
+        self.info_file = "./csv/info.txt"
+        self.csv_dir = "./csv"
 
-        self.combo_compte = ttk.Combobox(frame_select, values=self.liste_compte, state="readonly")
-        self.combo_compte.current(0)
-        self.combo_compte.pack(side="left", padx=10)
-        self.combo_compte.bind("<<ComboboxSelected>>")
+        # Créer le répertoire s'il n'existe pas
+        os.makedirs(self.csv_dir, exist_ok=True)
 
-        btn_update = ttk.Button(frame_select, text="Ouvrir", command=self.Choix_Compte)
-        btn_update.pack(side="left", padx=10)
+        # Charger les comptes depuis info.txt
+        self.load_accounts()
 
-        # Créer le notebook
+        # Dictionnaire pour stocker les onglets
+        self.onglets = {}
+
+        # Créer l'interface utilisateur
+        self.create_ui()
+
+    def load_accounts(self):
+        """Charge les comptes depuis info.txt et crée les objets Compte."""
+        if os.path.exists(self.info_file):
+            with open(self.info_file, 'r') as file:
+                for line in file:
+                    name, status, currency = line.strip().split(',')
+                    compte = Compte(f"{self.csv_dir}/{name}.xlsx", status, currency)
+                    compte.creation_date = self.get_creation_date(f"{self.csv_dir}/{name}.xlsx")
+                    self.comptes[name] = compte
+        else:
+            with open(self.info_file, 'w') as file:
+                pass  # Créer un fichier vide
+
+    def get_creation_date(self, file_path):
+        """Récupère la date de création d'un fichier."""
+        if os.path.exists(file_path):
+            return datetime.fromtimestamp(os.path.getctime(file_path)).strftime('%Y-%m-%d')
+        return None
+
+    def save_accounts(self):
+        """Sauvegarde les comptes dans info.txt."""
+        with open(self.info_file, 'w') as file:
+            for name, compte in self.comptes.items():
+                file.write(f"{name},{compte.status},{compte.currency}\n")
+
+    def create_ui(self):
+        """Crée l'interface utilisateur."""
+        # Frame pour les éléments en haut (barre de sélection du compte - globale)
+        top_frame = tk.Frame(self)
+        top_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
+
+        # Combobox pour sélectionner un compte (autocomplete, suggestions only)
+        self.combo_var = tk.StringVar()
+        self.combo = AutocompleteCombobox(top_frame, textvariable=self.combo_var,
+                          values=list(self.comptes.keys()), width=30)
+        # Do not enforce selection — user can type any text; suggestions are shown.
+        self.combo.pack(side=tk.LEFT, padx=5)
+
+        # Bouton pour rafraîchir
+        refresh_button = tk.Button(top_frame, text="Rafraîchir", command=self.refresh_all)
+        refresh_button.pack(side=tk.LEFT, padx=5)
+
+        # Notebook (conteneur d'onglets)
         self.notebook = ttk.Notebook(self)
-        self.notebook.pack(expand=True, fill="both")
+        self.notebook.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
-        # Ajouter les onglets
+        # Créer les onglets
+        self.create_tabs()
+
+    def create_tabs(self):
+        """Crée les onglets de l'application."""
+        # Onglet Comptes
+        self.onglet_comptes = Onglet_Comptes(self.notebook, self.comptes, self.info_file, self.csv_dir)
+        self.notebook.add(self.onglet_comptes, text="Comptes")
+        self.onglets['comptes'] = self.onglet_comptes
         
-        self.page_resumer = OngletResumer(self.notebook, self)
-        self.page_tableau = OngletTableau(self.notebook, self)
-        self.page_Graphique = OngletGraphique(self.notebook, self)  
-        self.page_Compte = OngletCompte(self.notebook,self)
-        self.page_virement = OngletVirement(self.notebook, self)
+        # Onglet Tableau
+        self.onglet_tableau = Onglet_Tableau(self.notebook, self.comptes, self.combo_var)
+        self.notebook.add(self.onglet_tableau, text="Tableau")
+        self.onglets['tableau'] = self.onglet_tableau
+
+        # Onglet Résumé
+        try:
+            self.onglet_resume = Onglet_Resume(self.notebook, self.comptes, self.combo_var)
+            self.notebook.add(self.onglet_resume, text="Résumé")
+            self.onglets['resume'] = self.onglet_resume
+        except Exception:
+            # Si l'import ou l'initialisation échoue, ne pas bloquer l'interface
+            pass
+
+        # Onglet Graphique
+        try:
+            self.onglet_graphique = Onglet_Graphique(self.notebook, self.comptes, self.combo_var)
+            self.notebook.add(self.onglet_graphique, text="Graphique")
+            self.onglets['graphique'] = self.onglet_graphique
+        except Exception as e:
+            # Si l'import ou l'initialisation échoue, ne pas bloquer l'interface
+            print(f"Erreur lors du chargement de l'onglet Graphique: {e}")
+
+        # Onglet Cumulé
+        try:
+            self.onglet_cumule = Onglet_Cumule(self.notebook, self.comptes)
+            self.notebook.add(self.onglet_cumule, text="Cumulé")
+            self.onglets['cumule'] = self.onglet_cumule
+        except Exception as e:
+            # Si l'import ou l'initialisation échoue, ne pas bloquer l'interface
+            print(f"Erreur lors du chargement de l'onglet Cumulé: {e}")
+
+        # Onglet Virement
+        try:
+            self.onglet_virement = Interface_Virement(self.notebook, self.comptes)
+            self.notebook.add(self.onglet_virement, text="Virement")
+            self.onglets['virement'] = self.onglet_virement
+        except Exception as e:
+            # Si l'import ou l'initialisation échoue, ne pas bloquer l'interface
+            print(f"Erreur lors du chargement de l'onglet Virement: {e}")
+
+    def refresh_all(self):
+        """Rafraîchit tous les onglets et relit les fichiers Excel."""
+        # Recharger les données depuis les fichiers Excel pour chaque compte existant
+        for name, compte in self.comptes.items():
+            compte.df = pd.read_excel(compte.chemin)
+            compte.df["Date"] = pd.to_datetime(compte.df["Date"], errors="coerce")
+            compte.date_debut = compte.df["Date"].min()
+            compte.date_fin = compte.df["Date"].max()
+            compte._Compte__recalculer_total()
         
-        
-        self.notebook.add(self.page_resumer, text="Recap")       
-        self.notebook.add(self.page_tableau, text="Tableau")
-        self.notebook.add(self.page_Graphique, text="Graphique")
-        self.notebook.add(self.page_virement, text="Virement")
-        self.notebook.add(self.page_Compte, text="Compte")
-        
-        self.Update()
-
-    def Choix_Compte(self):
-        """Callback quand un compte est sélectionné dans la ComboBox"""
-        self.selected_account = self.combo_compte.get()
-        if self.selected_account in self.dataframes:
-            self.current_account = self.selected_account
-            self.df = self.dataframes[self.selected_account].copy()
-            self.df_original = self.dataframes[self.selected_account].copy()
-            self.Update()
-
-    def Update(self) :
-        self.liste_compte = self.Detecter_Compte()
-        self.dataframes = {}
-        self.current_account = None
-        self.combo_compte['values'] = self.liste_compte
-        self.load_all_data()
-        self.Update_Filtrage()
-        self.page_resumer.update_data_Date()
-        self.page_tableau.update_tableau()
-        self.page_Graphique.update_graph()
-
-    def Update_Filtrage(self) : 
-        self.start_date = self.page_resumer.start_date.get_date()
-        self.end_date = self.page_resumer.end_date.get_date()
-
-        self.df = self.df_original[
-            (self.df_original['Date'] >= self.start_date) & (self.df_original['Date'] <= self.end_date)
-        ]
-        self.start_date_old = self.start_date
-        self.end_date_old = self.end_date
-        
-    def Detecter_Compte(self,directory='./'):
-        return [f for f in os.listdir(directory) if f.endswith('.xlsx') and os.path.isfile(os.path.join(directory, f))]
-        
+        # Rafraîchir chaque onglet
+        for onglet in self.onglets.values():
+            onglet.refresh()
 
 
-# Lancement de l'application
-app = Application()
-app.mainloop()
+
+
+
+# Exemple d'utilisation
+if __name__ == "__main__":
+    app = Gestionnaire_Onglets()
+    app.mainloop()

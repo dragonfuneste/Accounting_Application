@@ -6,6 +6,7 @@ Created on Thu Jun  5 20:33:22 2025
 """
 
 import os
+import os as os
 import shutil
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog, filedialog
