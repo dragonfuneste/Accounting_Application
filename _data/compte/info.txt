@@ -1,0 +1,4 @@
+Compte_Courant,ouvert,Euros
+Compte_Jeune,ouvert,Euros
+Livret_Bleu,ouvert,Euros
+CH_Compte_Courant,ouvert,Franc Suisse

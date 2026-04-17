@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compta — Statistiques</title>
+    
+    <link rel="stylesheet" href="/front_end/_template/global.css">
+    <link rel="stylesheet" href="/front_end/index/index.css">
+    <link rel="stylesheet" href="/front_end/statistic/statistic.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="topbar-brand">Application compte V4</div>
+            <span class="topbar-tag">Analyses & Répartition</span>
+        </header>
+
+        <main class="main-content">
+            <div class="stats-toolbar">
+                <div class="filter-group">
+                    <label>Compte</label>
+                    <select id="selectAccountStats"></select>
+                </div>
+                <div class="filter-group">
+                    <label>Du</label>
+                    <input type="date" id="statsDateStart">
+                </div>
+                <div class="filter-group">
+                    <label>Au</label>
+                    <input type="date" id="statsDateEnd">
+                </div>
+                <button class="btn-refresh" onclick="loadStats()">Actualiser</button>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Répartition Revenus</h3>
+                        <span id="totalRevLabel" class="total-badge plus">0.00 €</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="chartRevenus"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Répartition Dépenses</h3>
+                        <span id="totalDepLabel" class="total-badge minus">0.00 €</span>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="chartDepenses"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <h3>Détails par Catégories</h3>
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Type</th>
+                            <th>Montant</th>
+                            <th>Part</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody"></tbody>
+                </table>
+            </div>
+        </main>
+
+        {% include "_template/bottom.html" %}
+    </div>
+
+    <script src="/front_end/index/index.js"></script>
+    <script src="/front_end/statistic/statistic.js"></script>
+</body>
+</html>

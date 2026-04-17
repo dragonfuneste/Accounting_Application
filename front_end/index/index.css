@@ -1,0 +1,422 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+/* ─── Variables ─────────────────────────────────────────────────────────────── */
+:root {
+    --bg-base:       #0a0c0f;
+    --bg-surface:    #111318;
+    --bg-elevated:   #181c23;
+    --bg-hover:      #1e2330;
+    --bg-selected:   #0d1f35;
+
+    --border:        #1f2433;
+    --border-active: #2a3550;
+
+    --text-primary:  #e8eaf0;
+    --text-secondary:#7a8299;
+    --text-muted:    #3d4560;
+
+    --accent:        #2563eb;
+    --accent-dim:    #1a3a7a;
+    --accent-glow:   rgba(37, 99, 235, 0.15);
+
+    --green:         #10b981;
+    --green-dim:     rgba(16, 185, 129, 0.12);
+    --red:           #ef4444;
+    --red-dim:       rgba(239, 68, 68, 0.12);
+    --amber:         #f59e0b;
+
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+
+    --radius:   4px;
+    --radius-md:8px;
+}
+
+/* ─── Reset & base ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--sans);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* ─── Layout ────────────────────────────────────────────────────────────────── */
+.app-shell {
+    display: grid;
+    grid-template-rows: 48px 1fr;
+    min-height: 100vh;
+}
+
+/* ─── Topbar ────────────────────────────────────────────────────────────────── */
+.topbar {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 24px;
+}
+
+.topbar-brand {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.topbar-brand::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+}
+
+.topbar-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-left: auto;
+}
+
+/* ─── Main content ──────────────────────────────────────────────────────────── */
+.main-content {
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ─── KPI strip ─────────────────────────────────────────────────────────────── */
+.kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.kpi-card {
+    background: var(--bg-surface);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.kpi-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.kpi-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.kpi-value.positive { color: var(--green); }
+.kpi-value.negative { color: var(--red); }
+
+.kpi-sub {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* ─── Toolbar ───────────────────────────────────────────────────────────────── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: auto;
+}
+
+/* ─── Boutons ───────────────────────────────────────────────────────────────── */
+.btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+.btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+.btn-ghost {
+    background: transparent;
+    border-color: var(--border-active);
+    color: var(--text-secondary);
+}
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); border-color: #3a4560; }
+
+.btn-danger {
+    background: transparent;
+    border-color: var(--border-active);
+    color: var(--text-secondary);
+}
+.btn-danger:hover { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+.btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* ─── Table panel ───────────────────────────────────────────────────────────── */
+.table-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.account-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.account-table thead {
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+}
+
+.account-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.account-table th.num { text-align: right; }
+
+.account-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.account-table tbody tr:last-child td { border-bottom: none; }
+
+.account-table tbody tr {
+    transition: background 0.1s;
+    cursor: pointer;
+}
+.account-table tbody tr:hover { background: var(--bg-hover); }
+.account-table tbody tr.selected { background: var(--bg-selected); }
+.account-table tbody tr.selected td { border-bottom-color: var(--border-active); }
+
+/* Colonnes numériques */
+td.num {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-align: right;
+    letter-spacing: -0.01em;
+}
+
+td.num.positive { color: var(--green); }
+td.num.negative { color: var(--red); }
+
+/* Colonne nom */
+td.col-name {
+    font-weight: 500;
+    font-size: 13px;
+}
+
+/* Colonne devise */
+td.col-devise {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* Badge état */
+.badge-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.badge-state.active {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+.badge-state.active:hover { background: rgba(16, 185, 129, 0.2); }
+
+.badge-state.inactive {
+    background: rgba(122, 130, 153, 0.08);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+.badge-state.inactive:hover { background: var(--bg-hover); color: var(--text-secondary); }
+
+.badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* ─── Édition inline ────────────────────────────────────────────────────────── */
+td.editable:hover { background: rgba(37, 99, 235, 0.05); }
+
+.inline-input {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 4px 8px;
+    font-family: var(--sans);
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ─── Ligne de création ─────────────────────────────────────────────────────── */
+tr.creating-row td {
+    background: var(--bg-selected);
+    border-bottom: 1px solid var(--accent-dim);
+}
+
+.creating-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}
+
+/* ─── Message vide ──────────────────────────────────────────────────────────── */
+.empty-msg {
+    text-align: center;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 40px 0 !important;
+}
+
+
+/* --- Amélioration du bouton Status (Toggle) --- */
+.btn-status-toggle {
+    background: transparent;
+    border: 1px solid var(--border-active);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+}
+/* À ajouter dans compte.css */
+.chart-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-top: 10px;
+    height: 300px; /* Hauteur fixe pour le graph */
+}
+.btn-status-toggle:hover {
+    background: var(--bg-hover);
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: rotate(180deg); /* Effet de rotation stylé au survol */
+}
+
+/* --- Amélioration du bouton OK (Création) --- */
+.btn-submit-row {
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.btn-submit-row:hover {
+    background: var(--green);
+    color: var(--bg-base);
+}
+
+/* --- Style des Inputs dans la ligne de création --- */
+.creation-row input {
+    background: var(--bg-base);
+    border: 1px solid var(--accent-dim);
+    color: var(--text-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.creation-row input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}

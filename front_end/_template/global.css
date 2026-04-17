@@ -1,0 +1,55 @@
+/* ─── Bottom nav ────────────────────────────────────────────────────────────── */
+.app-shell {
+    display: grid;
+    grid-template-rows: 48px 1fr 52px; /* Topbar, Contenu, Menu */
+    min-height: 100vh;
+}
+
+.bottom-nav {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    height: 52px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--text-muted);
+    transition: background 0.15s, color 0.15s;
+    border-top: 2px solid transparent;
+    cursor: pointer;
+}
+
+.nav-item:hover:not(.disabled) {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+}
+
+.nav-item.active {
+    color: var(--accent);
+    border-top-color: var(--accent);
+    background: var(--accent-glow);
+}
+
+.nav-item.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.nav-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.nav-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}

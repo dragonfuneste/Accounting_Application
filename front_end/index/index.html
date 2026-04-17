@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compta — Gestion des comptes</title>
+    <link rel="stylesheet" href="/front_end/index/index.css">
+    <link rel="stylesheet" href="/front_end/_template/global.css">
+</head>
+<body>
+<div class="app-shell">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar-brand">Application compte V4</div>
+        <span class="topbar-tag">Overwiew des comptes</span>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+
+        <!-- KPI strip -->
+        <div class="kpi-strip">
+            <div class="kpi-card">
+                <span class="kpi-label">Revenus totaux</span>
+                <span class="kpi-value positive" id="kpiRevenu">—</span>
+                <span class="kpi-sub">tous comptes actifs</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Dépenses totales</span>
+                <span class="kpi-value negative" id="kpiDepense">—</span>
+                <span class="kpi-sub">tous comptes actifs</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Solde global</span>
+                <span class="kpi-value" id="kpiSolde">—</span>
+                <span class="kpi-sub" id="kpiNbComptes">— comptes actifs</span>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <span class="toolbar-title">Comptes</span>
+            <button class="btn btn-primary" id="btnCreate">＋ Nouveau compte</button>
+            <button class="btn btn-danger" id="btnDelete">✕ Supprimer</button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-panel">
+            <table class="account-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Devise</th>
+                        <th class="num">Revenus</th>
+                        <th class="num">Depenses</th>
+                        <th class="num">Solde</th>
+                        <th>État</th>
+                    </tr>
+                </thead>
+                <tbody id="accountTableBody"></tbody>
+            </table>
+        </div>
+        
+    </main>
+</div>
+<div class="chart-panel" style="margin-top: 24px; height: 500px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="margin: 0; font-size: 14px; color: var(--text-secondary);">Évolution du Solde</h3>
+        <select id="periodSelector" class="account-select" onchange="refreshDashboard()">
+            <option value="7">7 derniers jours</option>
+            <option value="30" selected>30 derniers jours</option>
+            <option value="90">3 derniers mois</option>
+            <option value="365">1 an</option>
+            <option value="all">Tout</option>
+        </select>
+    </div>
+    <canvas id="globalEvolutionChart"></canvas>
+</div>
+<div class="chart-panel" style="margin-top: 24px; height: 500px;">
+    <canvas id="globalEvolutionChart"></canvas>
+    
+</div>
+{% include "_template/bottom.html" %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/front_end/index/index.js"></script>
+</body>
+</html>
