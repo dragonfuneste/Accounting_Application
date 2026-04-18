@@ -211,44 +211,79 @@ function createDateInput(value = "") {
 
 function createCombobox(colName, value = "") {
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = "position:relative; width:100%;";
+    wrapper.className = "combo-wrapper"; // Pour le CSS
+    
     const input = document.createElement('input');
-    input.type = "text"; input.className = "inline-input";
-    input.value = value; input.dataset.col = colName; input.autocomplete = "off";
+    input.type = "text"; 
+    input.className = "inline-input";
+    input.value = value; 
+    input.dataset.col = colName; 
+    input.autocomplete = "off";
 
     const dropdown = document.createElement('ul');
-    dropdown.className = "combo-dropdown"; // Défini dans ton CSS
+    dropdown.className = "combo-dropdown";
 
     const showSuggestions = (filter) => {
-        const uniqueVals = [...new Set(cachedRows.map(r => r[colName]))].filter(v => v);
-        const options = uniqueVals.filter(v => v.toString().toLowerCase().includes(filter.toLowerCase()));
+        // 1. Extraire les valeurs uniques de la colonne demandée
+        const uniqueVals = [...new Set(cachedRows.map(r => r[colName]))]
+            .filter(v => v !== null && v !== undefined && v !== "");
+
+        // 2. Filtrer selon la saisie
+        const options = uniqueVals.filter(v => 
+            v.toString().toLowerCase().includes(filter.toLowerCase())
+        );
+
         dropdown.innerHTML = '';
-        if (options.length === 0) { dropdown.style.display = 'none'; return; }
+        
+        if (options.length === 0) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        // 3. Créer les éléments de liste
         options.forEach(opt => {
             const li = document.createElement('li');
             li.textContent = opt;
-            li.onmousedown = () => { input.value = opt; dropdown.style.display = 'none'; };
+            // Utiliser mousedown plutôt que click (évite le conflit avec le blur de l'input)
+            li.onmousedown = (e) => {
+                e.preventDefault(); // Empêche l'input de perdre le focus avant la sélection
+                input.value = opt;
+                dropdown.style.display = 'none';
+            };
             dropdown.appendChild(li);
         });
+
         dropdown.style.display = 'block';
     };
 
     input.oninput = () => showSuggestions(input.value);
     input.onfocus = () => showSuggestions(input.value);
-    input.onblur = () => setTimeout(() => dropdown.style.display = 'none', 150);
+    input.onblur = () => {
+        // Petit délai pour laisser le temps au mousedown de s'exécuter
+        setTimeout(() => dropdown.style.display = 'none', 200);
+    };
 
-    wrapper.appendChild(input); wrapper.appendChild(dropdown);
+    wrapper.appendChild(input);
+    wrapper.appendChild(dropdown);
     return wrapper;
 }
 
 function createCell(col, value = "") {
     const td = document.createElement('td');
-    if (col === DATE_COL) td.appendChild(createDateInput(value));
-    else if (COMBO_COLS.includes(col)) td.appendChild(createCombobox(col, value));
+    
+    if (col === DATE_COL) {
+        td.appendChild(createDateInput(value));
+    } 
+    else if (COMBO_COLS.includes(col)) {
+        // Cette fonction crée déjà le wrapper + input + dropdown
+        td.appendChild(createCombobox(col, value));
+    } 
     else {
         const inp = document.createElement('input');
-        inp.type = "text"; inp.className = "inline-input";
-        inp.dataset.col = col; inp.value = value;
+        inp.type = "text"; 
+        inp.className = "inline-input";
+        inp.dataset.col = col; 
+        inp.value = value;
         td.appendChild(inp);
     }
     return td;
@@ -302,4 +337,70 @@ async function deleteSelected() {
 function saveChanges() {
     loadAccountData();
     alert("Synchronisation terminée.");
+}
+
+async function uiAddRow() {
+    if (isCreating) return;
+    isCreating = true;
+
+    const tbody = document.getElementById('tableBody');
+    const tr = document.createElement('tr');
+    tr.className = "editing-row newly-added-row";
+
+    // On récupère les colonnes (exclu real_index)
+    const filteredCols = columns.filter(c => c !== 'real_index');
+    
+    // On génère les cellules (cela inclut les Combobox via createCell)
+    filteredCols.forEach(col => {
+        tr.appendChild(createCell(col, ""));
+    });
+
+    // Ajout de la cellule pour la colonne "Actions"
+    const actionTd = document.createElement('td');
+    tr.appendChild(actionTd);
+
+    // --- GESTION DES TOUCHES ---
+    tr.onkeydown = async (e) => {
+        if (e.key === 'Enter') {
+            const newValues = collectRowValues(tr);
+            
+            // --- VALIDATION STRICTE ---
+            // On vérifie que CHAQUE colonne a une valeur non vide
+            const missing = filteredCols.filter(col => {
+                return !newValues[col] || newValues[col].toString().trim() === "";
+            });
+            
+            if (missing.length > 0) {
+                alert(`Erreur : Tous les champs sont obligatoires (${missing.join(', ')})`);
+                const firstEmpty = tr.querySelector(`input[data-col="${missing[0]}"]`);
+                if (firstEmpty) firstEmpty.focus();
+                return; 
+            }
+
+            try {
+                const res = await fetch(`/api/account/${currentAccountIndex}/line`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newValues)
+                });
+                if (res.ok) {
+                    isCreating = false;
+                    await loadAccountData(); 
+                }
+            } catch (err) {
+                console.error("Erreur ajout:", err);
+            }
+        }
+        if (e.key === 'Escape') {
+            isCreating = false;
+            tr.remove();
+        }
+    };
+
+    // On insère d'abord dans le DOM
+    tbody.prepend(tr);
+    
+    // Puis on donne le focus (ce qui activera proprement les écouteurs de la combobox)
+    const firstInput = tr.querySelector('input');
+    if (firstInput) firstInput.focus();
 }

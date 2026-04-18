@@ -1,70 +1,86 @@
-# STRUCTURE du core (./core)
-- Compte.py :  Fichier qui gere le compte 
-    * __init__      (account_name: str, devise: str, state: bool, df: pd.DataFrame)
-    * actualize_df  ()
-    * add_lines     (champs: dict)
-    * delete_lines  (index: int)
-    * modify_lines  (index: int, nouveaux_champs: dict)
-    * triage        (column: str, croissant: bool = True)
-    * Filtrage      (id : int, keyword: str)
-    * Tri_Period    (start_date: datetime, end_date: datetime)
-    * uniques       ()
-    * statistic     ()
+# 💸 Système de Gestion de Budget V4
 
+Une application de gestion financière modulaire développée en **Python/Flask**, utilisant **Pandas** pour le traitement de données et une interface Web moderne (HTML5/JS). L'application se distingue par sa capacité d'analyse prédictive et son architecture découplée.
 
-- Comptabilite.py : Fichier qui gere toute la logique entre les compte
-    * __init__      (liste_compte: list[Compte])
-    * compute_full  ()
-    * creer_nouveau_compte(nom: str, devise: str = "EUR") 
-    * virement_intercompte(date: datetime, idx_src: int, idx_dst: int, montant: float, raison: str)
-    * change_state  (index: int)
+---
 
+## 🏗️ Architecture du projet
 
-- Database.py : Fichier qui gere avec la dabase 
-    * __init__          (db_name: str)
-    * _create_empty_db  ()
-    * read_all_accounts ()
-    * save_all_accounts (liste_comptes: list)
-# STRUCTURE API 
-    (./api)
-    - Api_compta : qui transforme les data de compta en json 
-    - API_compte : qui transforme les data de compte en JSOn $
-    (./route)
-    * Blueprint : 
-        - accounts_routes.py
-        - compta_routes.py
+![Architecture](./architecture.png)
 
-# STRUCTURE front end (./front_end)
-    - Compte.css , .js , .html : la ou on peut changer/ajouter/supprimer les donnée interne d'un compte (les transactions à l'interieur)
-    - Index.css , .js , .html : la ou affiche les different compte qu'on peut en rajouter , supprimer et changer leurs noms, leurs état et leurs devise
+### Structure des dossiers
 
-    - lvl1  API de gestion du compte
-        * Au niveau de Comptabilite :  Pouvoir ajouter, supprimer, editer des compte
-        * Au niveau de Compte : Pouvoir voir le tableau d un compte selection avec tout sur ce compte , pouvoir modifier des lignes en supprimer ou bien en ajouter, pouvoir filtrer pour rechercher, pouvoir trier
-        * Faire les calculs statistic simple pour revenu/depense/ecart 
-    - lvl2 : API de la gestion des interface temporel 
-    - lvl3 : le truc plus poussé
+```
+projet/
+│
+├── _data/                  # Coffre-fort de l'application (base de données)
+│
+├── core/                   # Cerveau du système
+│   ├── models/             # Définition des objets compte et structures de données
+│   ├── services/           # Moteurs de calcul (analyseur de cycles, détection de dérives)
+│   ├── persistence/        # Gestion des sauvegardes et lectures disque
+│   └── variables/          # Référentiels (catégories, labels, constantes système)
+│
+├── api/                    # Passerelle de communication
+│   ├── blueprint/          # Routes Flask découpées par fonctionnalité (Dashboard, Prévision…)
+│   └── serializer/         # Traduction des DataFrames Pandas en JSON consommables par le Web
+│
+└── front_end/              # Interface utilisateur organisée par modules
+    ├── compte/
+    ├── prevision/
+    ├── statistic/
+    └── …
+```
 
-# STRUCTURE front end 
+---
 
+## 🛠️ Fonctionnalités implémentées
 
-# TASK repartition
-- Faire le backend python 
-    - Compte
-    - Comptabilite
-    - Database
+### 1. Dashboard central — `/index`
 
-- Faire une API de gestion facile 
-    - lvl1 : API de gestion du compte
-    - lvl2 : API de la gestion des interface temporel 
-    - lvl3 : le truc plus poussé
+Vue globale de la santé financière.
 
-- faire le front end en html,css,js :
-    * Menu_1  * Gestion des compte *                    = lvl1 
-    * Menu_2  * Gestion du compte  *                    = lvl1 
-    * Menu_3  * Interface virement intercompte *        = lvl2
-    * Menu_4  * Graphique temporel des comptes *        = lvl2 
-    * Menu_5  * Reppartititon des Depenses *            = lvl3 
-    * Menu_6  * Analyse futur *                         = lvl3
+- **KPIs en temps réel** : revenus, dépenses et solde total agrégés.
+- **Graphique d'évolution** : historique des soldes avec sélecteur de période (7j, 30j, Tout).
 
+---
 
+### 2. Gestion granulaire — `/compte`
+
+Manipulation fine des transactions.
+
+- **CRUD intégré** : ajout, suppression et édition de transactions directement dans le tableau.
+- **Tri et filtrage** : moteur de recherche par mot-clé et tri par colonne sans rechargement de page.
+
+---
+
+### 3. Intelligence prédictive — `/prevision`
+
+- **Détection de cycles** : identification automatique des revenus et dépenses récurrentes.
+- **Stress test** : simulation du pire scénario financier (fourchettes hautes de dépenses, basses de revenus).
+- **Seuil de confiance** : curseur interactif (0–100 %) pour ajuster la sensibilité de l'analyseur.
+
+---
+
+### 4. Analyse et intercompte — `/intercompte`
+
+- **Répartition** : visualisation par catégorie sur des périodes personnalisées.
+- **Virements internes** : gestion des transferts entre comptes avec suivi de l'impact sur les soldes respectifs.
+
+---
+
+### 5. Objectifs — `/objectif` *(à venir)*
+
+Module de création de projets financiers sans modification de la base de données.
+
+- **Filtrage par date** : définition d'un début et d'une fin de projet.
+- **Apprentissage par validation** : l'utilisateur valide une transaction, le système suggère les transactions similaires (empreintes) pour les lier automatiquement à l'objectif.
+- **Suivi du reste à financer** : calcul dynamique de l'effort mensuel nécessaire.
+
+---
+
+## 🛡️ Philosophie de la donnée
+
+L'application repose sur le principe de **non-altération** :
+
+> Les fichiers sources dans `_data/` ne sont modifiés que lors d'une **sauvegarde explicite**. Toutes les analyses (prédictions, dérives) sont calculées à la volée pour garantir l'intégrité des données financières.

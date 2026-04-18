@@ -5,6 +5,7 @@ from api.blueprint.Account import account_details_routes # Import du nouveau blu
 from api.blueprint.Dashboard import compta_routes
 from api.blueprint.Intercompte import intercompte_routes
 from api.blueprint.Statistic import stats_routes
+from api.blueprint.prediction import prediction_routes
 # Puisque main.py est dans New_structure, on cible le dossier front_end à côté
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONT_END_DIR = os.path.join(BASE_DIR, "front_end")
@@ -28,6 +29,7 @@ app.register_blueprint(compta_routes)
 app.register_blueprint(account_details_routes)
 app.register_blueprint(intercompte_routes)
 app.register_blueprint(stats_routes)
+app.register_blueprint(prediction_routes)
 # --- ROUTES POUR L'INTERFACE ---
 
 @app.route('/')
@@ -45,6 +47,11 @@ def intercompte(index):
 @app.route('/statistic/<int:index>')
 def statistic(index):
     return render_template('statistic/statistic.html', active='statistic', account_index=index)
+
+@app.route('/prediction/<int:index>')
+def prediction(index):
+    return render_template('prevision/prevision.html', active='prediction', account_index=index)
+
 
 @app.route('/front_end/<path:path>')
 def send_static(path):

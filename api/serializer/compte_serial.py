@@ -2,6 +2,7 @@ from core.models.compte import compte
 from core.variables.variable import COLUMNS_STRUCTURE,REVENU,DEPENSE,ECART
 from datetime import datetime
 import pandas as pd
+from core.services.analyser_compte import analyser_compte
 class compte_serial():
     def __init__(self,compte : compte):
         self.compte =compte
@@ -83,4 +84,20 @@ class compte_serial():
     def statistic(self):
         total_depense,total_revenu,total_ecart,_ = self.compte.statistic()
         return {f"{REVENU}": total_revenu,f"{DEPENSE}": total_depense,f"{ECART}": total_ecart}
-    
+    # ------------------------------------------------------------------------------------- #
+                                # Prediction #
+    # ------------------------------------------------------------------------------------- #
+    def get_predictions_data(self,probabilite : int):
+        """Génère et formate les données pour le JSON de la route"""
+        # Initialisation de l'analyseur
+        analyseur = analyser_compte(self.compte)
+        
+        # Génération des données
+        df_preds = analyseur.Generer_prediction()
+        
+        # Formatage pour le Web (JSON)
+        return {
+            "predictions": analyseur.afficher_predictions(df_preds).to_dict(orient='records'),
+            "stress_test": analyseur.simuler_scenario_stress(df_preds,probabilite).to_dict(orient='records'),
+            "solde_actuel": analyseur.solde_actuel
+        }

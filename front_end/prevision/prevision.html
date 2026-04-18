@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Compta — Prédictions & Stress Test</title>
+    <link rel="stylesheet" href="/front_end/_template/global.css">
+    <link rel="stylesheet" href="/front_end/index/index.css">
+    <link rel="stylesheet" href="/front_end/prevision/prevision.css">
+</head>
+<body>
+<div class="app-shell">
+    <header class="topbar">
+        <div class="topbar-brand">Intelligence Financière</div>
+        <span class="topbar-tag">Prédictions & Scénarios</span>
+    </header>
+
+    <main class="main-content">
+        <div class="toolbar">
+            <div class="toolbar-center">
+    <label for="probRange">Confiance : <span id="probVal">50</span>%</label>
+    <input type="range" id="probRange" min="0" max="100" value="50" step="5" oninput="updateProbLabel(this.value)" onchange="loadPredictions()">
+</div>
+            <div class="toolbar-left">
+                <select id="accountSelector" class="account-select" onchange="loadPredictions()">
+                    <option value="" disabled selected>Choisir un compte...</option>
+                </select>
+            </div>
+            <div id="soldeInfo" class="topbar-tag" style="margin-left: auto;">Solde actuel : --</div>
+        </div>
+
+        <div class="chart-panel" style="height: 400px; margin-bottom: 24px;">
+            <div class="panel-header">
+                <h3 class="panel-title">Projection du Solde (Normal vs Pire Cas)</h3>
+            </div>
+            <canvas id="predictionChart"></canvas>
+        </div>
+
+        <div class="prediction-grid">
+            <div class="table-container">
+                <div class="panel-header">
+                    <h3 class="panel-title" style="color: var(--green);">↗ Revenus Probables</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Date Prévue</th>
+                            <th class="num">Montant est.</th>
+                            <th>Fiabilité</th>
+                        </tr>
+                    </thead>
+                    <tbody id="revenuTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <div class="panel-header">
+                    <h3 class="panel-title" style="color: var(--red);">↘ Dépenses Probables</h3>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Date Prévue</th>
+                            <th class="num">Montant est.</th>
+                            <th>Fiabilité</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depenseTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% include "_template/bottom.html" %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/front_end/prevision/prevision.js"></script>
+</body>
+</html>

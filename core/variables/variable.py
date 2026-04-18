@@ -7,3 +7,20 @@ COLUMNS_STRUCTURE = ["Date", "Intitule", "Categorie", "Classe", "Type", "Valeur"
 REVENU = "Revenu"
 DEPENSE = "Depense"
 ECART = "Ecart"  # Assure-toi que cette ligne existe exactement comme ça
+
+# core/variables/variable.py
+
+# ... tes variables existantes (COLUMNS_STRUCTURE, etc.) ...
+
+STATUT_LABELS = {
+    "a_venir":     "⏳ À venir",
+    "en_retard":   "⚠️ En retard",
+    "cycle_rompu": "🧊 Cycle rompu",
+    "irregulier":  "🔀 Irrégulier",
+}
+
+FIABILITE_LABELS = {
+    "critique":  "🔥 Critique",
+    "fiable":    "✅ Fiable",
+    "incertain": "⚖️ Incertain",
+}
