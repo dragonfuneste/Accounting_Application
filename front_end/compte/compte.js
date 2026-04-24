@@ -109,28 +109,22 @@ function renderTableHead(cols) {
 
 function renderTableBody(rows) {
     const tbody = document.getElementById('tableBody');
-    if (!tbody) return;
-    isCreating = false;
-    tbody.innerHTML = '';
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
-    if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${columns.length + 1}" class="empty-msg">Aucune transaction trouvée.</td></tr>`;
-        return;
-    }
+        rows.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.dataset.realIndex = row.real_index; 
 
-    rows.forEach((row) => {
-        const tr = document.createElement('tr');
-        tr.dataset.realIndex = row.real_index; 
-
-        tr.innerHTML = columns
-            .filter(col => col !== 'real_index')
-            .map(col => {
-                const val = row[col] ?? "";
-                const isNum = typeof val === 'number';
-                const cls = isNum ? (val < 0 ? 'num negative' : 'num positive') : '';
-                return `<td class="${cls}">${isNum ? val.toFixed(2) : val}</td>`;
-            }).join('') + '<td></td>';
-
+            tr.innerHTML = columns
+                .filter(col => col !== 'real_index')
+                .map(col => {
+                    const val = row[col] ?? "";
+                    // On affiche la valeur brute envoyée par l'API (qui sera ISO grâce à Python)
+                    const isNum = typeof val === 'number';
+                    const cls = isNum ? (val < 0 ? 'num negative' : 'num positive') : '';
+                    return `<td class="${cls}">${isNum ? val.toFixed(2) : val}</td>`;
+                }).join('') + '<td></td>';
         tr.onclick = () => {
             document.querySelectorAll('#tableBody tr').forEach(r => r.classList.remove('selected'));
             tr.classList.add('selected');
@@ -166,17 +160,23 @@ async function triggerServerFilter(column, keyword) {
 }
 
 async function handleSort(column) {
-    const currentState = sortStates[column] || null;
-    let nextState = (currentState === null) ? 'asc' : (currentState === 'asc' ? 'desc' : null);
-    let apiValue = (nextState === 'asc') ? true : (nextState === 'desc' ? false : null);
+    const currentState = sortStates[column] || 'desc'; // Par défaut on vient de desc pour passer à asc
+    
+    // Bascule binaire : si c'était asc, ça devient desc, sinon ça devient asc
+    let nextState = (currentState === 'asc') ? 'desc' : 'asc';
+    let apiValue = (nextState === 'asc'); // Devient true ou false (plus de null)
 
+    // On met à jour l'icône
     sortStates = { [column]: nextState };
 
     try {
         await fetch(`/api/account/${currentAccountIndex}/sort`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ column: apiValue === null ? null : column, croissant: apiValue })
+            body: JSON.stringify({ 
+                column: column, 
+                croissant: apiValue 
+            })
         });
         await loadAccountData(); 
     } catch (err) { console.error("Erreur tri:", err); }
@@ -187,16 +187,24 @@ async function handleSort(column) {
 function toInputDate(val) {
     if (!val) return "";
     const s = String(val).trim();
+    // Si c'est déjà de l'ISO (YYYY-MM-DD), on renvoie tel quel
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    // Si c'est du FR (DD/MM/YYYY), on le convertit en ISO pour l'input date
     const m = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
     if (m) return `${m[3]}-${m[2]}-${m[1]}`;
     return "";
 }
 
 function fromInputDate(val) {
-    if (!val) return "";
-    const m = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+    // ICI : On ne veut plus de conversion vers le FR. 
+    // On veut que la fonction renvoie de l'ISO quoi qu'il arrive.
+    const s = String(val).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // C'est déjà bon
+    
+    // Si on reçoit du FR, on le transforme en ISO pour l'affichage
+    const m = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+    if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+    
     return val;
 }
 

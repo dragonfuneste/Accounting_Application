@@ -20,44 +20,61 @@ class compte:
         self.uniques()
         logging.info(f"DF Actualisé pour le compte {self.account_name}")
 
-    def add_lines(self, champs: dict):
-        """Ajoute une ligne et synchronise la vue."""
+
+    def delete_lines(self, real_id : str):
+        """Supprime une ligne par son identifiant unique real_index."""
         if self.state:
-            # On récupère le nom de la colonne montant/valeur
+            # On cherche l'index Pandas correspondant à cet ID unique
+            mask = self.df['real_index'] == real_id
+            if mask.any():
+                idx_to_drop = self.df.index[mask][0]
+                self.df = self.df.drop(idx_to_drop).reset_index(drop=True)
+                self.actualize_df()
+                logging.info(f"Ligne avec ID {real_id} supprimée.")
+            else:
+                logging.warning(f"ID {real_id} non trouvé pour suppression.")
+
+    def modify_line(self, real_id : str, nouveaux_champs: dict):
+        """Modifie les données d'une ligne via son ID unique."""
+        if self.state:
+            mask = self.df['real_index'] == real_id
+            if mask.any():
+                idx_to_modify = self.df.index[mask][0]
+                col_val = COLUMNS_STRUCTURE[5]
+                
+                for key, value in nouveaux_champs.items():
+                    # On ne modifie pas l'ID lui-même
+                    if key == 'real_index': continue 
+                    
+                    if key == col_val:
+                        try:
+                            value = abs(float(value))
+                        except:
+                            value = 0.0
+                    self.df.at[idx_to_modify, key] = value
+                
+                self.actualize_df()
+                logging.info(f"Ligne ID {real_id} modifiée.")
+
+    def add_lines(self, champs: dict):
+        """Ajoute une ligne et lui génère un ID unique immédiat."""
+        if self.state:
+            # Sécurité : Génération d'un ID si absent (très important pour le JS)
+            if 'real_index' not in champs or not champs['real_index']:
+                import hashlib
+                import time
+                seed = f"{time.time()}_{champs.get('Intitule','')}"
+                champs['real_index'] = hashlib.md5(seed.encode()).hexdigest()[:8]
+
             col_val = COLUMNS_STRUCTURE[5] 
-            
             if col_val in champs:
-                valeur_brute = champs[col_val]
-                # SÉCURITÉ : On ne convertit que si ce n'est pas vide
-                if valeur_brute != "" and valeur_brute is not None:
-                    try:
-                        champs[col_val] = abs(float(valeur_brute))
-                    except ValueError:
-                        champs[col_val] = 0.0
-                else:
-                    champs[col_val] = 0.0 # Valeur par défaut pour l'ajout initial
+                try:
+                    champs[col_val] = abs(float(champs[col_val]))
+                except:
+                    champs[col_val] = 0.0
                 
             new_row = pd.DataFrame([champs])
             self.df = pd.concat([self.df, new_row], ignore_index=True)
-            self.actualize_df()
-            logging.info(f"Ligne ajoutée dans {self.account_name}, champs : {champs}")
-
-    def delete_lines(self, index: int):
-        """Supprime une ligne par son index système."""
-        if self.state and index in self.df.index:
-            self.df = self.df.drop(index).reset_index(drop=True)
-            self.actualize_df()
-            logging.info(f"Ligne {index} supprimée de {self.account_name},  champs :  {index}")
-
-    def modify_line(self, index: int, nouveaux_champs: dict):
-        """Modifie les données d'une ligne spécifique."""
-        logging.info(f"Ligne {index} modifie")
-        if self.state and index in self.df.index:
-            col_val = COLUMNS_STRUCTURE[5]
-            for key, value in nouveaux_champs.items():
-                if key == col_val:
-                    value = abs(float(value))
-                self.df.at[index, key] = value
             self.actualize_df()
 
 

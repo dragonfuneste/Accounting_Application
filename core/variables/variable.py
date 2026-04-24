@@ -8,10 +8,6 @@ REVENU = "Revenu"
 DEPENSE = "Depense"
 ECART = "Ecart"  # Assure-toi que cette ligne existe exactement comme ça
 
-# core/variables/variable.py
-
-# ... tes variables existantes (COLUMNS_STRUCTURE, etc.) ...
-
 STATUT_LABELS = {
     "a_venir":     "⏳ À venir",
     "en_retard":   "⚠️ En retard",
@@ -24,3 +20,10 @@ FIABILITE_LABELS = {
     "fiable":    "✅ Fiable",
     "incertain": "⚖️ Incertain",
 }
+
+EN_COURS = "En cours"
+TERMINE  = "Terminé"
+EN_PAUSE = "En pause"
+MAX_KEYWORDS = 10
+_STOPWORDS   = {"les", "des", "une", "par", "sur", "pour", "avec", "chez", "via",
+                "dan", "son", "ses", "mon", "mes", "ton", "tes", "nos", "vos"}

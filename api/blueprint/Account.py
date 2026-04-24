@@ -23,26 +23,23 @@ def get_account_data(index):
 # --- Route pour AJOUTER une ligne ---
 @account_details_routes.route('/api/account/<int:index>/line', methods=['POST'])
 def add_line(index):
-    """Ajoute une ligne vide dans le tableau du compte index."""
-    # 1. Récupération des données envoyées par le JS (le dictionnaire de colonnes vides)
     data = request.json 
-    
-    # 2. Action sur le Core
     db_manager = current_app.db_manager
     compte_obj = db_manager.comptabilite.liste_compte[index]
     serial = compte_serial(compte_obj)
     
-    # On appelle l'ajout
+    # L'ajout génère maintenant un real_index dans le Core (via compte.py)
     serial.add_line(data)
-    
-    # 3. Persistance immédiate (Comme dans ton Dashboard !)
     db_manager.save()
     
-    return jsonify({"status": "success", "message": "Ligne ajoutée avec succès."})
+    # On renvoie "success". 
+    # Ton JS actuel fait un `await loadAccountData()` juste après l'ajout, 
+    # donc il récupérera le nouvel ID automatiquement.
+    return jsonify({"status": "success"})
 
 # --- Route pour MODIFIER une ligne (Double-clic + Entrée) ---
-@account_details_routes.route('/api/account/<int:index>/line/<int:line_idx>', methods=['PUT'])
-def update_line(index, line_idx):
+@account_details_routes.route('/api/account/<int:index>/line/<string:line_id>', methods=['PUT'])
+def update_line(index, line_id):
     db_manager = current_app.db_manager
     compte_obj = db_manager.comptabilite.liste_compte[index]
     serial = compte_serial(compte_obj)
@@ -51,11 +48,13 @@ def update_line(index, line_idx):
     data = request.json
     
     try:
-        serial.modify_line(line_idx, data) # Utilise la méthode de compte_serial
+        # On passe line_id (le Hash) à la place de l'ancien index numérique
+        serial.modify_line(line_id, data) 
         db_manager.save()
         return jsonify({"status": "success"})
     except Exception as e:
-        return jsonify({"status": "error"}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
 # Dans Account.py
 @account_details_routes.route('/api/account/<int:index>/filter', methods=['POST'])
 def filter_account(index):
@@ -76,8 +75,10 @@ def filter_account(index):
 def sort_account(index):
     data = request.json
     column = data.get('column')
-    # croissant sera True, False, ou None
+    # On force True (croissant) si 'croissant' est None ou non défini
     croissant = data.get('croissant')
+    if croissant is None:
+        croissant = True 
     
     db_manager = current_app.db_manager
     compte_obj = db_manager.comptabilite.liste_compte[index]
@@ -86,12 +87,16 @@ def sort_account(index):
     serial.trier(column, croissant)
     return jsonify({"rows": serial.get_df()})
 
-@account_details_routes.route('/api/account/<int:index>/line/<int:line_idx>', methods=['DELETE'])
-def delete_line(index, line_idx):
+@account_details_routes.route('/api/account/<int:index>/line/<string:line_id>', methods=['DELETE'])
+def delete_line(index, line_id):
     db_manager = current_app.db_manager
     compte_obj = db_manager.comptabilite.liste_compte[index]
     serial = compte_serial(compte_obj)
     
-    serial.delete_line(line_idx)
-    db_manager.save()
-    return jsonify({"status": "success"})
+    try:
+        # On utilise le Hash pour la suppression
+        serial.delete_line(line_id)
+        db_manager.save()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

@@ -77,6 +77,34 @@ Module de création de projets financiers sans modification de la base de donné
 - **Apprentissage par validation** : l'utilisateur valide une transaction, le système suggère les transactions similaires (empreintes) pour les lier automatiquement à l'objectif.
 - **Suivi du reste à financer** : calcul dynamique de l'effort mensuel nécessaire.
 
+
+Objectif_test.ipynb fait un truc correct en terme de fonctionnalité maintenant pour la partie graphique : 
+
+- Je vois bien un truc en mode sticky note avec des compartiment la sticky note c est le nom, une barre d'achieveemnt globale et en gros l'emoji/logo et l'échance qui devient rouge quand elle est dépassé . les sticky note seront trie de l'ordre de priorité et placer en ligne en haut et elle seront scrollable. Quand je clique sur une sticky note la partie du mullieux et du bas m'affichera un truc comme ca 
+
+
+Ca marche pas des masse la connection avec Step est mauvais tout est mauvais faut refaire le serializer
+------
+Sticky note projet (nom + emoji)
+------
+Nom projet selectionne
+barre de pourcentage
+But
+date
+-----
+Task1                |Task2                |Task3                |
+etat                 |etat                 |etat                 |
+barre accompli       |barre accompli       |barre accompli       |
+barre depense        |barre depense        |barre depense        |
+barre revenu         |barre revenu         |barre revenu         |
+but                  |but                  |but                  |
+debut                |debut                |debut                |
+fin                  |fin                  |fin                  |
+-----
+Menu bottom
+
+
+
 ---
 
 ## 🛡️ Philosophie de la donnée

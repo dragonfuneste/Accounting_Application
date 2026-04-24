@@ -74,11 +74,13 @@ class comptabilite:
             dict_compte.append(ecart_cummule)
             name.append(compte.account_name)
         return name,dict_compte
+    
     # ------------------------------------------------------------------------------------- #
                                 # INTERCOMPTE ACCOUNT #
     # ------------------------------------------------------------------------------------- #
     def virement_intercompte(self,idx_src : int ,idx_dst : int ,date : datetime,raison: str,montant_out : str,montant_in:int):
         src, dst = self.liste_compte[idx_src], self.liste_compte[idx_dst]
+        
         logging.info(f"Exécution d'un virement inter-compte : {src.account_name} -> {dst.account_name} ")
         if src.state and dst.state:
             # Sortie
@@ -87,37 +89,39 @@ class comptabilite:
             # Entrée
             dst.add_lines({COLUMNS_STRUCTURE[0]: date, COLUMNS_STRUCTURE[1]: f"{raison}", 
                            COLUMNS_STRUCTURE[2]: "Virement", COLUMNS_STRUCTURE[3]: f"{src.account_name}", COLUMNS_STRUCTURE[4]: REVENU, COLUMNS_STRUCTURE[5]: montant_in})
+        
+        
     def cumulatif_intercompte(self, idx_src: int, idx_dst: int):
-        src, dst = self.liste_compte[idx_src], self.liste_compte[idx_dst]
-        intercompte = src.df[src.df[COLUMNS_STRUCTURE[3]] == dst.account_name].copy()
-        
-        if intercompte.empty:
-            return pd.DataFrame(), 0, 0, 0
+            
+            src, dst = self.liste_compte[idx_src], self.liste_compte[idx_dst]
+            
+            # On filtre les lignes où la destination est mentionnée
+            intercompte = src.df[src.df[COLUMNS_STRUCTURE[3]] == dst.account_name].copy()
+            
+            if intercompte.empty:
+                return pd.DataFrame(), 0, 0, 0
 
-        col_date = COLUMNS_STRUCTURE[0]
-        
-        # 1. Conversion robuste
-        intercompte[col_date] = pd.to_datetime(intercompte[col_date], dayfirst=True, errors='coerce')
-        intercompte = intercompte.dropna(subset=[col_date]) # On vire les dates cassées
-        
-        # 2. Tri chronologique (2025 -> 2026)
-        intercompte = intercompte.sort_values(by=col_date)
+            col_date = COLUMNS_STRUCTURE[0]
+            
+            # 1. Conversion robuste (Format FR vers Objet Date)
+            intercompte[col_date] = pd.to_datetime(intercompte[col_date], dayfirst=True, errors='coerce')
+            intercompte = intercompte.dropna(subset=[col_date]) 
+            
+            # 2. Tri chronologique indispensable pour le graphique
+            intercompte = intercompte.sort_values(by=col_date)
 
-        # 3. Calculs des totaux
-        depenses_total = round(intercompte[intercompte[COLUMNS_STRUCTURE[4]] == DEPENSE][COLUMNS_STRUCTURE[5]].sum(), 2)
-        revenus_total = round(intercompte[intercompte[COLUMNS_STRUCTURE[4]] == REVENU][COLUMNS_STRUCTURE[5]].sum(), 2)
-        solde = round(revenus_total - depenses_total, 2)
+            # 3. Calculs des totaux
+            depenses_total = round(intercompte[intercompte[COLUMNS_STRUCTURE[4]] == DEPENSE][COLUMNS_STRUCTURE[5]].sum(), 2)
+            revenus_total = round(intercompte[intercompte[COLUMNS_STRUCTURE[4]] == REVENU][COLUMNS_STRUCTURE[5]].sum(), 2)
+            solde = round(revenus_total - depenses_total, 2)
 
-        # 4. Calcul du cumul (On garde la logique : Dépense = Sortie)
-        valeurs_signees = intercompte.apply(
-            lambda row: row[COLUMNS_STRUCTURE[5]] if row[COLUMNS_STRUCTURE[4]] == DEPENSE else -row[COLUMNS_STRUCTURE[5]], 
-            axis=1
-        )
-        intercompte["Cumul"] = round(valeurs_signees.cumsum(), 2)
-        
-        # On prépare le résultat en gardant les dates en format ISO (YYYY-MM-DD) 
-        # c'est BIEN plus stable pour le JavaScript
-        resultat = intercompte[[col_date, COLUMNS_STRUCTURE[1], "Cumul"]].copy()
-        resultat[col_date] = resultat[col_date].dt.strftime('%Y-%m-%d') 
-
-        return resultat, solde, revenus_total, depenses_total
+            # 4. Calcul du cumul (Dépense = Sortie de cash)
+            valeurs_signees = intercompte.apply(
+                lambda row: row[COLUMNS_STRUCTURE[5]] if row[COLUMNS_STRUCTURE[4]] == DEPENSE else -row[COLUMNS_STRUCTURE[5]], 
+                axis=1
+            )
+            intercompte["Cumul"] = round(valeurs_signees.cumsum(), 2)
+            
+            # 5. Préparation pour le JSON (On convertit l'objet Date en String ISO pour Chart.js)
+            resultat = intercompte.copy()
+            return resultat, solde, revenus_total, depenses_total

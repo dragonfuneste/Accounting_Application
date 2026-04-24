@@ -27,7 +27,6 @@ def transfer():
 def chart_data():
     src = request.args.get('src', type=int)
     dst = request.args.get('dst', type=int)
-    
     db_manager = current_app.db_manager
     serial = comptabilite_serial(db_manager.comptabilite)
     

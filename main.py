@@ -1,37 +1,53 @@
 import os
+import sys
 from flask import Flask, render_template, send_from_directory
 from core.persistence.database_manager import DatabaseManager
-from api.blueprint.Account import account_details_routes # Import du nouveau blueprint
+from api.blueprint.Account import account_details_routes
 from api.blueprint.Dashboard import compta_routes
 from api.blueprint.Intercompte import intercompte_routes
 from api.blueprint.Statistic import stats_routes
 from api.blueprint.prediction import prediction_routes
-# Puisque main.py est dans New_structure, on cible le dossier front_end à côté
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONT_END_DIR = os.path.join(BASE_DIR, "front_end")
+from api.blueprint.Objectif import projects_routes
 
 
-# Chemin vers le dossier qui contient tes dossiers 'index', 'compte' et '_template'
-template_dir = os.path.abspath('front_end')
+# ── Résolution des chemins (dev ET .exe PyInstaller) ─────────────────────────
+def _base_dir() -> str:
+    """
+    Retourne le dossier racine de l'application :
+    - En développement : dossier contenant main.py
+    - En .exe PyInstaller (one-folder) : dossier contenant le .exe
+    - En .exe PyInstaller (one-file)  : dossier temporaire _MEIPASS
+    """
+    if hasattr(sys, '_MEIPASS'):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
 
-app = Flask(__name__, 
-            template_folder=template_dir,
-            static_folder=template_dir) # Si tu stockes tes CSS/JS au même endroit
 
+BASE_DIR     = _base_dir()
+FRONT_END_DIR = os.path.join(BASE_DIR, 'front_end')
+DATA_DIR      = os.path.join(BASE_DIR, '_data')
 
-# Initialisation du Manager (Source de vérité)
-#db_manager = DatabaseManager("Compte") 
-db_manager = DatabaseManager("Compte") 
+# ── Flask ─────────────────────────────────────────────────────────────────────
+app = Flask(
+    __name__,
+    template_folder=FRONT_END_DIR,
+    static_folder=FRONT_END_DIR,
+)
+
+# ── DatabaseManager ───────────────────────────────────────────────────────────
+goal_path = os.path.join(DATA_DIR, 'goal2.json')
+db_manager = DatabaseManager('Compte', goal_path)
 app.db_manager = db_manager
 
-# Enregistrement du Blueprint API
+# ── Blueprints ────────────────────────────────────────────────────────────────
 app.register_blueprint(compta_routes)
 app.register_blueprint(account_details_routes)
 app.register_blueprint(intercompte_routes)
 app.register_blueprint(stats_routes)
 app.register_blueprint(prediction_routes)
-# --- ROUTES POUR L'INTERFACE ---
+app.register_blueprint(projects_routes)
 
+# ── Routes HTML ───────────────────────────────────────────────────────────────
 @app.route('/')
 def index():
     return render_template('index/index.html', active='overview')
@@ -43,7 +59,7 @@ def compte(index):
 @app.route('/intercompte/<int:index>')
 def intercompte(index):
     return render_template('intercompte/intercompte.html', active='intercompte', account_index=index)
-# Route pour servir les fichiers statiques (CSS/JS) correctement
+
 @app.route('/statistic/<int:index>')
 def statistic(index):
     return render_template('statistic/statistic.html', active='statistic', account_index=index)
@@ -52,10 +68,14 @@ def statistic(index):
 def prediction(index):
     return render_template('prevision/prevision.html', active='prediction', account_index=index)
 
+@app.route('/objectif/<int:index>')
+def objectif(index):
+    return render_template('objectif/objectif.html', active='objectif', account_index=index)
 
 @app.route('/front_end/<path:path>')
 def send_static(path):
     return send_from_directory(FRONT_END_DIR, path)
 
-if __name__ == "__main__":
+# ── Lancement ─────────────────────────────────────────────────────────────────
+if __name__ == '__main__':
     app.run(debug=True)

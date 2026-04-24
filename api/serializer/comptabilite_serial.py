@@ -2,6 +2,10 @@ from api.serializer.compte_serial import compte_serial
 from core.variables.variable import REVENU, DEPENSE, ECART , COLUMNS_STRUCTURE
 from core.services.comptabilite import comptabilite
 import datetime
+import plotly.utils
+import json
+import pandas as pd
+
 class comptabilite_serial():
     def __init__(self, compta : comptabilite):
         """Initialise le sérialiseur avec l'instance de comptabilité."""
@@ -64,16 +68,12 @@ class comptabilite_serial():
         if "Valeur" in data:
             val = str(data["Valeur"]).replace(',', '.')
             data["Valeur"] = float(val) if val.strip() else 0.0
-        if "Date" in data and data["Date"]:
-            date_obj = pd.to_datetime(data["Date"], dayfirst=True, format='mixed')
-            data["Date"] = date_obj.strftime('%d/%m/%Y')
                 
         self.compte.modify_lines(index, data)
 
     # ------------------------------------------------------------------------------------- #
     # INTERCOMPTE
     # ------------------------------------------------------------------------------------- #
-    # Dans ton serializer (probablement comptabilite_serial.py)
     def get_intercompte_stats(self, src_idx, dst_idx):
         res, solde, rev, dep = self.compta.cumulatif_intercompte(src_idx, dst_idx)
         
@@ -87,26 +87,76 @@ class comptabilite_serial():
             "solde": solde
         }
     def virement_intercompte(self, idx_src, idx_dst, date_str, raison, montant_out, montant_in):
-        # Sécurité : On transforme le "2026-04-15" du JS en "15/04/2026"
-        try:
-            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-            date_fr = date_obj.strftime('%d/%m/%Y')
-        except:
-            date_fr = date_str # Au cas où c'est déjà du FR
-
-        # On envoie la version FR au core
-        self.compta.virement_intercompte(idx_src, idx_dst, date_fr, raison, montant_out, montant_in)
+        """
+        Prépare et normalise les données de virement avant l'envoi au Core.
+        Assure que la date finit TOUJOURS en DD/MM/YYYY dans l'Excel.
+        """
+        self.compta.virement_intercompte(
+            idx_src, 
+            idx_dst, 
+            date_str, 
+            raison, 
+            float(montant_out), 
+            float(montant_in)
+        )
 
 
     # ------------------------------------------------------------------------------------- #
     # Statistic
     # ------------------------------------------------------------------------------------- #
     def get_stats_repartition(self, account_idx, days, selected_months=None):
-        # On vérifie si l'index est valide via la classe compta
+        if not self.compta.check_index(account_idx):
+            return None
+            
+        compte_obj = self.compta.liste_compte[account_idx]
+        return compte_obj.get_categories_repartition(days, selected_months)
+    
+    def get_sankey_data(self, account_idx, start_date=None, end_date=None):
         if not self.compta.check_index(account_idx):
             return None
             
         compte_obj = self.compta.liste_compte[account_idx]
         
-        # IMPORTANT : Il faut aussi que la méthode dans compte.py accepte selected_months
-        return compte_obj.get_categories_repartition(days, selected_months)
+        # On récupère le DataFrame complet
+        df = compte_obj.df_actual.copy()
+        
+        # --- AJOUT DU FILTRE DE DATE ---
+        if start_date and end_date:
+            # Conversion de la colonne Date en datetime si nécessaire
+            df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+            mask = (df['Date'] >= pd.to_datetime(start_date)) & (df['Date'] <= pd.to_datetime(end_date))
+            df = df.loc[mask]
+        # -------------------------------
+
+        df['Valeur'] = df['Valeur'].abs()
+
+        df_rev = df[df['Type'] == 'Revenu']
+        df_dep = df[df['Type'] == 'Depense']
+
+        # Flux Entrée -> Portefeuille
+        flux_entree = df_rev.groupby('Categorie')['Valeur'].sum().reset_index()
+        flux_entree.columns = ['source', 'value']
+        flux_entree['target'] = 'PORTEFEUILLE'
+        flux_entree['source'] = flux_entree['source'] + " " 
+
+        # Flux Portefeuille -> Sortie
+        flux_sortie = df_dep.groupby('Categorie')['Valeur'].sum().reset_index()
+        flux_sortie.columns = ['target', 'value']
+        flux_sortie['source'] = 'PORTEFEUILLE'
+
+        flux_total = pd.concat([flux_entree, flux_sortie], ignore_index=True)
+        nodes = list(pd.unique(flux_total[['source', 'target']].values.ravel('K')))
+        mapping = {node: i for i, node in enumerate(nodes)}
+        
+        # Préparation des couleurs
+        node_colors = ["#00adb5" if n == 'PORTEFEUILLE' else ("#2ecc71" if n.endswith(" ") else "#e74c3c") for n in nodes]
+
+        # On retourne le dictionnaire prêt pour Plotly
+        return {
+            "nodes": [n.strip() for n in nodes],
+            "node_colors": node_colors,
+            "source": flux_total['source'].map(mapping).tolist(),
+            "target": flux_total['target'].map(mapping).tolist(),
+            "value": flux_total['value'].tolist(),
+            "account_name": compte_obj.account_name
+        }

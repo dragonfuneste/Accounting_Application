@@ -43,14 +43,62 @@ async function loadStats() {
         // Mise à jour des labels totaux
         document.getElementById('totalRevLabel').textContent = `${data.total_revenu.toLocaleString()} €`;
         document.getElementById('totalDepLabel').textContent = `${data.total_depense.toLocaleString()} €`;
-        
+        loadSankey();
         updateCharts(data);
         updateTable(data);
     } catch (e) {
         console.error("Erreur de chargement:", e);
     }
 }
+async function loadSankey() {
+   const accIdx = document.getElementById('selectAccountStats').value;
+    const start = document.getElementById('statsDateStart').value; // Lecture du champ date
+    const end = document.getElementById('statsDateEnd').value;     // Lecture du champ date
+    
+    // Ajout des paramètres start et end dans l'URL
+    const url = `/api/stats/sankey?account=${accIdx}&start=${start}&end=${end}`;
+    
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
 
+        // Si aucune donnée sur cette période, on peut afficher un message ou vider le graph
+        if (data.source.length === 0) {
+            console.warn("Aucune donnée pour la période sélectionnée");
+            return;
+        }
+
+    const trace = {
+        type: "sankey",
+        arrangement: "snap",
+        node: {
+            pad: 25,
+            thickness: 30,
+            label: data.nodes,
+            color: data.node_colors,
+            line: { color: "rgba(0,0,0,0)", width: 0 }
+        },
+        link: {
+            source: data.source,
+            target: data.target,
+            value: data.value,
+            color: "rgba(144, 148, 151, 0.2)"
+        }
+    };
+
+    const layout = {
+        title: { text: `FLUX DE TRÉSORERIE : ${data.account_name}`, font: { color: '#ffffff' } },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { family: "Inter, sans-serif", size: 12, color: "#7a8299" },
+        margin: { l: 10, r: 10, t: 50, b: 10 }
+    };
+
+    Plotly.newPlot('sankeyChart', [trace], layout, {responsive: true, displayModeBar: false});
+    } catch (e) {
+        console.error("Erreur lors du chargement du Sankey:", e);
+    }
+}
 function updateCharts(data) {
     const chartConfig = (id, labels, values, total, colorScheme) => {
         const ctx = document.getElementById(id).getContext('2d');

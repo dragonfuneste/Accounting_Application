@@ -9,15 +9,17 @@ class compte_serial():
         pass
 
     def get_df(self):
-        cols = COLUMNS_STRUCTURE 
-        rows = []
-        # .iterrows() permet de récupérer l'index réel (idx) de chaque ligne
-        for idx, row in self.compte.df_actual.iterrows():
-            dico = {cols[i]: row[i] for i in range(len(cols))}
-            dico['real_index'] = idx  # On ajoute l'index immuable de la ligne
-            rows.append(dico)
-        
-        return rows
+            cols = COLUMNS_STRUCTURE 
+            rows = []
+            # On utilise to_dict('records') c'est plus rapide, 
+            # mais on doit s'assurer que real_index est bien dedans
+            for _, row in self.compte.df_actual.iterrows():
+                dico = {cols[i]: row[i] for i in range(len(cols))}
+                # ICI : On ajoute l'ID unique qui est dans la colonne 'real_index' du DataFrame
+                dico['real_index'] = str(row['real_index']) 
+                rows.append(dico)
+            
+            return rows
         
 
     def get_global_information(self):
@@ -26,28 +28,13 @@ class compte_serial():
 
     # ------------------------------------------------------------------------------------- #
     
-    def delete_line(self,index: int):
+    def delete_line(self,index: str):
         self.compte.delete_lines(index) 
     
     def add_line(self, data: dict):
-        # Sécurité : Si une date arrive, on s'assure qu'elle est au format attendu par le Core
-        if "Date" in data and data["Date"]:
-            try:
-                # On convertit peu importe le format d'entrée (ISO ou FR) 
-                # vers un objet datetime, puis on le remet en string FR pour ton stockage
-                date_obj = pd.to_datetime(data["Date"], dayfirst=True)
-                data["Date"] = date_obj.strftime('%d/%m/%Y')
-            except:
-                pass # On laisse tel quel si vraiment illisible
         self.compte.add_lines(data)
 
-    def modify_line(self, index: int, data: dict):
-        if "Date" in data and data["Date"]:
-            try:
-                date_obj = pd.to_datetime(data["Date"], dayfirst=True)
-                data["Date"] = date_obj.strftime('%d/%m/%Y')
-            except:
-                pass
+    def modify_line(self, index: str, data: dict):
         self.compte.modify_line(index, data)
         
     # ------------------------------------------------------------------------------------- #
