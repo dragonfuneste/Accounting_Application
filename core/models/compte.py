@@ -37,6 +37,7 @@ class compte:
     def modify_line(self, real_id : str, nouveaux_champs: dict):
         """Modifie les données d'une ligne via son ID unique."""
         if self.state:
+            print(real_id)
             mask = self.df['real_index'] == real_id
             if mask.any():
                 idx_to_modify = self.df.index[mask][0]
@@ -54,6 +55,7 @@ class compte:
                     self.df.at[idx_to_modify, key] = value
                 
                 self.actualize_df()
+                print(self.df[self.df['real_index']==real_id])
                 logging.info(f"Ligne ID {real_id} modifiée.")
 
     def add_lines(self, champs: dict):
@@ -80,13 +82,16 @@ class compte:
 
     def triage(self, column, croissant):
         if column is None:
-            # État "Initial" : on réinitialise la vue
             self.actualize_df()
+            return
         if column == "Date":
-                # Utiliser format='mixed' ici aussi pour éviter les erreurs
-                self.df_actual[column] = pd.to_datetime(self.df_actual[column], dayfirst=True, format='mixed')
-                self.df_actual = self.df_actual.sort_values(by=column, ascending=croissant)
-                self.df_actual[column] = self.df_actual[column].dt.strftime('%d/%m/%Y')
+            # Toujours garder ISO (YYYY-MM-DD) — ne jamais convertir en DD/MM/YYYY
+            self.df_actual[column] = pd.to_datetime(
+                self.df_actual[column], format='%Y-%m-%d', errors='coerce'
+            )
+            self.df_actual = self.df_actual.sort_values(by=column, ascending=croissant)
+            # Remettre en string ISO pour la sérialisation JSON
+            self.df_actual[column] = self.df_actual[column].dt.strftime('%Y-%m-%d')
         else:
             self.df_actual = self.df_actual.sort_values(by=column, ascending=croissant)
     # Dans compte.py
@@ -101,7 +106,7 @@ class compte:
     def Tri_Period(self, start_date: datetime, end_date: datetime):
         """Filtre la vue sur une plage de dates."""
         col_date = COLUMNS_STRUCTURE[0]
-        temp_date = pd.to_datetime(self.df[col_date])
+        temp_date = pd.to_datetime(self.df[col_date], format='%Y-%m-%d', errors='coerce')
         mask = (temp_date >= start_date) & (temp_date <= end_date)
         self.df_actual = self.df.loc[mask]
 
@@ -152,7 +157,7 @@ class compte:
         df_temp = self.df_actual.copy()
 
         # FORCE la conversion et gère les erreurs en les transformant en NaT (Not a Time)
-        df_temp[col_date] = pd.to_datetime(df_temp[col_date], dayfirst=True, errors='coerce')
+        df_temp[col_date] = pd.to_datetime(df_temp[col_date], format='%Y-%m-%d', errors='coerce')
         
         # Supprime les lignes où la date est invalide (sécurité)
         df_temp = df_temp.dropna(subset=[col_date])
@@ -188,7 +193,7 @@ class compte:
         col_type = COLUMNS_STRUCTURE[4]
         col_val = COLUMNS_STRUCTURE[5]
 
-        df_temp[col_date] = pd.to_datetime(df_temp[col_date], dayfirst=True, errors='coerce')
+        df_temp[col_date] = pd.to_datetime(df_temp[col_date], format='%Y-%m-%d', errors='coerce')
         df_temp = df_temp.dropna(subset=[col_date])
         
         # Filtrage par plage précise
@@ -216,7 +221,7 @@ class compte:
         col_val = COLUMNS_STRUCTURE[5]
         df_temp = self.df_actual[self.df_actual[collums] == classe].copy()
 
-        df_temp[col_date] = pd.to_datetime(df_temp[col_date], dayfirst=True, errors='coerce')       
+        df_temp[col_date] = pd.to_datetime(df_temp[col_date], format='%Y-%m-%d', errors='coerce')       
         df_temp = df_temp.dropna(subset=[col_date])
         df_temp = df_temp.sort_values(by=col_date)
 

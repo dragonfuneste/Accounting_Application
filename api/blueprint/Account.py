@@ -46,6 +46,8 @@ def update_line(index, line_id):
     
     # Récupère les données JSON du JS
     data = request.json
+    print(f"[PUT] line_id={line_id}, data={data}")  # ← ajoute ça
+
     
     try:
         # On passe line_id (le Hash) à la place de l'ancien index numérique

@@ -3,7 +3,8 @@
 Une application de gestion financière modulaire développée en **Python/Flask**, utilisant **Pandas** pour le traitement de données et une interface Web moderne (HTML5/JS). L'application se distingue par sa capacité d'analyse prédictive et son architecture découplée.
 
 ---
-
+# generate the exe
+pyinstaller --onefile --icon="icone.ico" --add-data "front_end;front_end" --add-data "_data;_data" launcher.py
 ## 🏗️ Architecture du projet
 
 ![Architecture](./architecture.png)

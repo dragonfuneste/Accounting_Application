@@ -1,7 +1,11 @@
 import os
 import sys
+import threading
+import webbrowser
 from flask import Flask, render_template, send_from_directory
 from core.persistence.database_manager import DatabaseManager
+
+# Import des blueprints
 from api.blueprint.Account import account_details_routes
 from api.blueprint.Dashboard import compta_routes
 from api.blueprint.Intercompte import intercompte_routes
@@ -9,23 +13,17 @@ from api.blueprint.Statistic import stats_routes
 from api.blueprint.prediction import prediction_routes
 from api.blueprint.Objectif import projects_routes
 
-
 # ── Résolution des chemins (dev ET .exe PyInstaller) ─────────────────────────
 def _base_dir() -> str:
-    """
-    Retourne le dossier racine de l'application :
-    - En développement : dossier contenant main.py
-    - En .exe PyInstaller (one-folder) : dossier contenant le .exe
-    - En .exe PyInstaller (one-file)  : dossier temporaire _MEIPASS
-    """
     if hasattr(sys, '_MEIPASS'):
         return sys._MEIPASS
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
 
-
-BASE_DIR     = _base_dir()
+BASE_DIR = _base_dir()
 FRONT_END_DIR = os.path.join(BASE_DIR, 'front_end')
-DATA_DIR      = os.path.join(BASE_DIR, '_data')
+DATA_DIR = os.path.join(BASE_DIR, '_data')
 
 # ── Flask ─────────────────────────────────────────────────────────────────────
 app = Flask(
@@ -77,5 +75,14 @@ def send_static(path):
     return send_from_directory(FRONT_END_DIR, path)
 
 # ── Lancement ─────────────────────────────────────────────────────────────────
+def open_browser():
+    """Ouvre le navigateur sur l'app locale."""
+    webbrowser.open('http://127.0.0.1:5000')
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Lance l'ouverture du navigateur dans un thread 
+    # pour ne pas bloquer le démarrage de Flask
+    threading.Timer(1.0, open_browser).start()
+    
+    # Lancement du serveur
+    app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)

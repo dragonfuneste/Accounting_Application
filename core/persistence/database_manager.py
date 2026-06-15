@@ -9,7 +9,7 @@ from core.models.project import Projects
 from core.services.project_management import ProjectManagement
 
 class DatabaseManager:
-    def __init__(self, db_name, projects_json_path):
+    def __init__(self, db_name, projects_json_path=""):
         # 1. Initialise la DB SQLite
         self.db = Database(db_name)
         

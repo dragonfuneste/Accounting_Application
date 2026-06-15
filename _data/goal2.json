@@ -58,7 +58,7 @@
         "nom": "Fond",
         "but": "Fond pour sécuriser ma situation",
         "argent_cible": 15000.0,
-        "argent_actuel": 2500.0,
+        "argent_actuel": 8100.0,
         "depenses_reelles": 0.0,
         "date_fin": "2026-12-31",
         "etat": "En cours",
@@ -68,7 +68,10 @@
           {
             "nom": "Livret_Bleu",
             "ids": [
-              "3e5928e4"
+              "0667c87b",
+              "3e5928e4",
+              "0a7e1b5f",
+              "2b384078"
             ]
           }
         ],
@@ -103,6 +106,28 @@
         "argent_actuel": 0.0,
         "depenses_reelles": 0.0,
         "date_fin": "2026-10-31",
+        "etat": "En cours",
+        "keywords": [],
+        "max_keywords": 10,
+        "ids_revenus": [],
+        "ids_depenses": []
+      }
+    ]
+  },
+  {
+    "nom": "Tatouage",
+    "Emoji_logo_projet": "🎨",
+    "but": "Faire un tatouage sur le bras",
+    "note_importance": 5,
+    "echance maximal": "2027-06-14",
+    "steps": [
+      {
+        "nom": "tatouage au bras",
+        "but": "tatouage au bras",
+        "argent_cible": 2000.0,
+        "argent_actuel": 0.0,
+        "depenses_reelles": 0.0,
+        "date_fin": "2025-06-14",
         "etat": "En cours",
         "keywords": [],
         "max_keywords": 10,
