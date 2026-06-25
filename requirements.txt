@@ -1,7 +1,0 @@
-# Liste des dépendances Python pour Accounting_Application
-pyinstaller
-flask
-pandas
-plotly
-numpy
-# Ajoutez ici d'autres paquets nécessaires, un par ligne
