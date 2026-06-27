@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compte</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/menu_compte.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compte_sub_menu.css') }}">
+</head>
+<body>
+
+    <!-- MAIN PANEL -->
+    <main class="main-panel" id="main-panel">
+
+        <!-- COMPTE HEADER -->
+        <div class="compte-header" id="compte-header">
+            <div class="compte-header-info">
+                <h2 id="compte-title">—</h2>
+                <span class="compte-devise-badge" id="compte-devise">—</span>
+                <span class="compte-status-badge" id="compte-status" style="display:none">Inactif</span>
+            </div>
+
+            <!-- TABS -->
+            <nav class="tabs-nav" id="tabs-nav">
+                <button class="tab-btn active" data-tab="tableau">
+                    <span class="tab-icon">⊞</span>
+                    <span>Tableau</span>
+                </button>
+                <button class="tab-btn" data-tab="analyse">
+                    <span class="tab-icon">◎</span>
+                    <span>Analyse</span>
+                </button>
+                <button class="tab-btn" data-tab="prediction">
+                    <span class="tab-icon">◈</span>
+                    <span>Prédiction</span>
+                </button>
+                <button class="tab-btn" data-tab="virement">
+                    <span class="tab-icon">⇄</span>
+                    <span>Virement</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- TAB PANELS -->
+        <div class="tab-panels">
+
+            <div class="tab-panel active" id="panel-tableau">
+                <div class="panel-placeholder">
+                    <span class="panel-placeholder-icon">⊞</span>
+                    <p>Tableau des transactions à venir</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="panel-analyse">
+                <div class="panel-placeholder">
+                    <span class="panel-placeholder-icon">◎</span>
+                    <p>Analyse du compte à venir</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="panel-prediction">
+                <div class="panel-placeholder">
+                    <span class="panel-placeholder-icon">◈</span>
+                    <p>Prédictions à venir</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="panel-virement">
+                <div class="virement-form-wrap">
+                    <h3 class="virement-title">Virement intercompte</h3>
+
+                    <div class="virement-form">
+
+                        <div class="vform-row">
+                            <label class="vform-label">Compte source</label>
+                            <div class="vform-value vform-source-name" id="virement-source-name">—</div>
+                        </div>
+
+                        <div class="vform-row">
+                            <label class="vform-label">Compte destinataire</label>
+                            <select class="vform-select" id="virement-dest">
+                                <option value="">Choisir un compte…</option>
+                            </select>
+                        </div>
+
+                        <div class="vform-row">
+                            <label class="vform-label">Date du virement</label>
+                            <input class="vform-input" type="date" id="virement-date">
+                        </div>
+
+                        <div class="vform-row">
+                            <label class="vform-label">Montant envoyé</label>
+                            <div class="vform-amount-wrap">
+                                <input class="vform-input vform-amount" type="number" id="virement-valeur" min="0.01" step="0.01" placeholder="0.00">
+                                <span class="vform-devise" id="virement-devise-src">—</span>
+                            </div>
+                        </div>
+
+                        <div class="vform-row vform-row-dest-amount" id="vform-row-dest-amount" style="display:none">
+                            <label class="vform-label">Montant reçu</label>
+                            <div class="vform-amount-wrap">
+                                <input class="vform-input vform-amount" type="number" id="virement-valeur-dest" min="0.01" step="0.01" placeholder="0.00">
+                                <span class="vform-devise" id="virement-devise-dest">—</span>
+                            </div>
+                        </div>
+
+                        <div class="vform-actions">
+                            <button class="btn-primary vform-submit" id="virement-submit">Valider le virement</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SIDEBAR (réutilise le même) -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <span class="sidebar-logo">◈</span>
+            <h1>Mes Comptes</h1>
+            <div class="sidebar-header-actions">
+                <button class="btn-icon" id="btn-add-compte" title="Ajouter un compte">+</button>
+                <button class="btn-icon btn-icon-danger" id="btn-delete-compte" title="Supprimer le compte sélectionné" disabled>−</button>
+            </div>
+        </div>
+
+        <div class="sidebar-global">
+            <div class="sidebar-global-row">
+                <span class="sidebar-global-label">Revenus</span>
+                <span class="sidebar-global-amount rev" id="global-revenus">—</span>
+            </div>
+            <div class="sidebar-global-row">
+                <span class="sidebar-global-label">Dépenses</span>
+                <span class="sidebar-global-amount dep" id="global-depenses">—</span>
+            </div>
+            <div class="sidebar-global-divider"></div>
+            <div class="sidebar-global-row">
+                <span class="sidebar-global-label">Écart</span>
+                <span class="sidebar-global-amount" id="global-ecart">—</span>
+            </div>
+        </div>
+
+        <nav class="account-list" id="account-list">
+            <div class="account-list-loading">Chargement…</div>
+        </nav>
+
+    </aside>
+
+    <!-- MODAL : Ajouter compte -->
+    <div class="modal-overlay" id="add-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Nouveau compte</h3>
+                <button class="modal-close" id="add-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <label><span>Nom du compte</span><input type="text" id="add-name" placeholder="Ex: Compte Épargne"></label>
+                <label><span>Devise</span><input type="text" id="add-devise" placeholder="EUR, CHF…" maxlength="5" value="EUR"></label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="add-cancel">Annuler</button>
+                <button class="btn-primary" id="add-save">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL : Modifier compte -->
+    <div class="modal-overlay" id="edit-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Modifier le compte</h3>
+                <button class="modal-close" id="edit-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <label><span>Nom du compte</span><input type="text" id="edit-name" placeholder="Nom du compte"></label>
+                <label><span>Devise</span><input type="text" id="edit-devise" placeholder="CHF, EUR…" maxlength="5"></label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="edit-cancel">Annuler</button>
+                <button class="btn-primary" id="edit-save">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL : Confirmer suppression -->
+    <div class="modal-overlay" id="delete-overlay">
+        <div class="modal modal-danger">
+            <div class="modal-header">
+                <h3>Supprimer le compte</h3>
+                <button class="modal-close" id="delete-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <p id="delete-warning-text" style="color:#475569;font-size:0.9rem;line-height:1.6;"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="delete-cancel">Annuler</button>
+                <button class="btn-danger" id="delete-confirm">Supprimer définitivement</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/menu_compte.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/compte_sub_menu.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+/* ── Override main-panel ──────────────────────────── */
+.main-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+/* ── Header ───────────────────────────────────────── */
+.ic-header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.ic-back-btn {
+    font-family: var(--font);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #64748B;
+    background: #F1F5F9;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+.ic-back-btn:hover { background: #E2E8F0; color: #1E293B; }
+
+.ic-header-title { display: flex; flex-direction: column; gap: 6px; }
+.ic-header-title h2 { font-size: 1.1rem; font-weight: 700; color: #1E293B; line-height: 1; }
+
+.ic-accounts-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    width: fit-content;
+}
+.ic-arrow { color: var(--accent); font-size: 1rem; }
+
+/* ── Content grid ─────────────────────────────────── */
+.ic-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    overflow: hidden;
+}
+
+.ic-section {
+    padding: 24px 28px;
+    overflow-y: auto;
+}
+
+.ic-form-section {
+    border-right: 1px solid var(--border);
+}
+
+.ic-right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.ic-section-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 16px;
+}
+
+/* ── History (scrollable, prend l'espace disponible) ── */
+.ic-history-block {
+    flex: 1;
+    padding: 20px 28px;
+    overflow-y: auto;
+    border-bottom: 1px solid var(--border);
+    min-height: 0;
+}
+
+/* ── Chart (fixe en bas, toujours visible) ────────── */
+.ic-chart-block {
+    flex-shrink: 0;
+    padding: 16px 28px 20px;
+    background: var(--card-bg);
+}
+
+.ic-chart-wrap {
+    position: relative;
+    height: 180px;
+}
+
+.ic-chart-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94A3B8;
+    font-size: 0.82rem;
+    font-style: italic;
+}
+
+.ic-history-list { display: flex; flex-direction: column; gap: 7px; }
+
+.ic-history-loading, .ic-history-empty {
+    color: #94A3B8;
+    font-size: 0.85rem;
+    padding: 12px 0;
+    text-align: center;
+}
+
+.ic-history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    gap: 10px;
+    transition: border-color 0.15s;
+}
+.ic-history-item:hover { border-color: #CBD5E1; }
+
+.ic-history-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ic-history-date { font-size: 0.7rem; color: #94A3B8; font-variant-numeric: tabular-nums; }
+.ic-history-label { font-size: 0.82rem; font-weight: 500; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.ic-history-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
+.ic-history-amount { font-size: 0.88rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ic-history-amount.sent     { color: var(--expense); }
+.ic-history-amount.received { color: var(--revenue); }
+.ic-history-direction { font-size: 0.63rem; font-weight: 500; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── Virement form ────────────────────────────────── */
+.virement-form { display: flex; flex-direction: column; gap: 14px; }
+.vform-row { display: flex; flex-direction: column; gap: 5px; }
+
+.vform-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #64748B;
+}
+.vform-optional { font-size: 0.7rem; font-weight: 400; text-transform: none; letter-spacing: 0; color: #94A3B8; }
+
+.vform-source-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1E293B;
+    padding: 8px 11px;
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+}
+
+.vform-select, .vform-input {
+    font-family: var(--font);
+    font-size: 0.88rem;
+    padding: 8px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+    color: #1E293B;
+    background: white;
+    transition: border-color 0.15s;
+    width: 100%;
+}
+.vform-select:focus, .vform-input:focus { border-color: var(--accent); }
+
+.vform-amount-wrap { display: flex; gap: 7px; align-items: center; }
+.vform-amount { flex: 1; }
+
+.vform-devise {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(45,212,191,0.1);
+    padding: 4px 9px;
+    border-radius: 6px;
+    min-width: 40px;
+    text-align: center;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+}
+.vform-devise-dest { color: #F59E0B; background: rgba(245,158,11,0.1); }
+
+.vform-actions { padding-top: 6px; }
+.vform-submit { width: 100%; padding: 10px; font-size: 0.88rem; }

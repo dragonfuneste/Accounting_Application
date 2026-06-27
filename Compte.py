@@ -1,6 +1,6 @@
 import ast
 import logging
-
+import pandas as pd 
 class Compte:
     def __init__(self, account_id, cursor, connection):
         self.id = account_id
@@ -58,20 +58,38 @@ class Compte:
         return result if result else (None, None)
     
 
-    def get_stats(self):
-        """Calcule revenus, dépenses et solde"""
+    def get_account_stats(self):
+            """Calcule revenus, dépenses et solde cumulés"""
+            query = """
+                SELECT 
+                    date,
+                    SUM(CASE WHEN est_revenu = 0 THEN valeur ELSE 0 END) OVER (ORDER BY date ASC) as depense_cumule,
+                    SUM(CASE WHEN est_revenu = 1 THEN valeur ELSE 0 END) OVER (ORDER BY date ASC) as revenu_cumule,
+                    SUM(CASE WHEN est_revenu = 1 THEN valeur ELSE -valeur END) OVER (ORDER BY date ASC) as solde_cumule
+                FROM transactions 
+                WHERE compte_id = ?
+                ORDER BY date ASC
+            """
+
+            self.cursor.execute(query, (self.id,))
+            res = self.cursor.fetchall()
+
+            df = pd.DataFrame(res, columns=['date', 'depense_cumule', 'revenu_cumule', 'solde_cumule'])
+            df['date'] = pd.to_datetime(df['date'], format='mixed')
+            return df
+    
+
+    def add_transaction(self,date , intitule : str, categorie :str,classe :str,est_revenu : bool , valeur : int ):
         query = """
-            SELECT 
-                SUM(CASE WHEN est_revenu = 1 THEN valeur ELSE 0 END) as revenus,
-                SUM(CASE WHEN est_revenu = 0 THEN valeur ELSE 0 END) as depenses
-            FROM transactions 
-            WHERE compte_id = ?
+        INSERT INTO transactions 
+            (compte_id, date, intitule, categorie, classe, est_revenu, valeur) 
+        VALUES 
+            (?,?,?,?,?,?,?);
         """
-        self.cursor.execute(query, (self.id,))
-        res = self.cursor.fetchone()
-        
-        return {
-            "revenus": res[0] or 0,
-            "depenses": res[1] or 0, 
-            "solde": res[0] - res[1] or 0
-        }
+        self.cursor.execute(query, (self.id,date,intitule,categorie,classe,est_revenu,valeur))
+
+    def delete_transaction():
+        pass
+
+    def modify_transaction():
+        pass

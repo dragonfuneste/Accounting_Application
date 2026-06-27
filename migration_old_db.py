@@ -25,6 +25,7 @@ def migrer_base_complete(ancienne_db_path, nouvelle_db_path):
                 date TEXT,
                 intitule TEXT,
                 categorie TEXT,
+                classe TEXT,
                 est_revenu BOOLEAN,  -- 1 pour Revenu, 0 pour Dépense
                 valeur REAL,
                 FOREIGN KEY(compte_id) REFERENCES comptes(id)
@@ -46,16 +47,16 @@ def migrer_base_complete(ancienne_db_path, nouvelle_db_path):
             if compte_data:
                 compte_id = compte_data[0]
                 # On récupère les données
-                data = old_conn.execute(f"SELECT Date, Intitule, Categorie, Type, Valeur FROM {table_name}")
+                data = old_conn.execute(f"SELECT Date, Intitule, Categorie,Classe, Type, Valeur FROM {table_name}")
                 
                 for row in data.fetchall():
                     # Transformation : 'Revenu' devient 1, tout le reste (Dépense) devient 0
-                    is_revenu = 1 if row[3].strip().lower() == 'revenu' else 0
+                    is_revenu = 1 if row[4].strip().lower() == 'revenu' else 0
                     
                     new_conn.execute("""
-                        INSERT INTO transactions (compte_id, date, intitule, categorie, est_revenu, valeur)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    """, (compte_id, row[0], row[1], row[2], is_revenu, row[4]))
+                        INSERT INTO transactions (compte_id, date, intitule, categorie,classe, est_revenu, valeur)
+                        VALUES (?, ?, ?, ?,?, ?, ?)
+                    """, (compte_id, row[0], row[1], row[2],row[3], is_revenu, row[5]))
             else:
                 print(f"Attention : Compte '{table_name}' non trouvé.")
         

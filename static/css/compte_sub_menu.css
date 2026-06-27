@@ -1,0 +1,233 @@
+/* ── Compte header ────────────────────────────────── */
+.compte-header {
+    padding: 28px 40px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--card-bg);
+}
+
+.compte-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.compte-header-info h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.compte-devise-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(45,212,191,0.1);
+    padding: 2px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.05em;
+}
+
+.compte-status-badge {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #64748B;
+    background: #F1F5F9;
+    padding: 2px 8px;
+    border-radius: 5px;
+}
+
+/* ── Tabs nav ─────────────────────────────────────── */
+.tabs-nav {
+    display: flex;
+    gap: 2px;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #64748B;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.tab-btn:hover {
+    color: #1E293B;
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tab-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* ── Tab panels ───────────────────────────────────── */
+.tab-panels {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.panel-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40vh;
+    gap: 12px;
+    color: #94A3B8;
+    text-align: center;
+}
+
+.panel-placeholder-icon {
+    font-size: 2.5rem;
+    color: #CBD5E1;
+}
+
+.panel-placeholder p {
+    font-size: 0.9rem;
+}
+
+/* ── Override main-panel for compte page ──────────── */
+.main-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+/* ── Virement form ────────────────────────────────── */
+.virement-form-wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding-top: 8px;
+}
+
+.virement-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 28px;
+}
+
+.virement-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.vform-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vform-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #64748B;
+}
+
+.vform-source-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1E293B;
+    padding: 9px 12px;
+    background: #F8FAFC;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+}
+
+.vform-select,
+.vform-input {
+    font-family: var(--font);
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    outline: none;
+    color: #1E293B;
+    background: white;
+    transition: border-color 0.15s;
+    width: 100%;
+}
+
+.vform-select:focus,
+.vform-input:focus {
+    border-color: var(--accent);
+}
+
+.vform-amount-wrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.vform-amount {
+    flex: 1;
+}
+
+.vform-devise {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(45,212,191,0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    min-width: 42px;
+    text-align: center;
+    letter-spacing: 0.05em;
+}
+
+.vform-row-dest-amount .vform-devise {
+    color: #F59E0B;
+    background: rgba(245,158,11,0.1);
+}
+
+.vform-actions {
+    padding-top: 8px;
+}
+
+.vform-submit {
+    width: 100%;
+    padding: 11px;
+    font-size: 0.9rem;
+}
+
+.vform-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+}
+
+/* devise mismatch hint */
+.vform-fx-hint {
+    font-size: 0.75rem;
+    color: #F59E0B;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
