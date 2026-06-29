@@ -88,6 +88,30 @@ class Compte:
         """
         self.cursor.execute(query, (self.id,date,intitule,categorie,classe,est_revenu,valeur))
 
+
+    def filter(self, date_debut=None, date_fin=None, categorie=None, classe=None, est_revenu=None):
+        query = """
+            SELECT * FROM transactions
+            WHERE compte_id = ?
+            AND ( ? IS NULL OR date >= ? )
+            AND ( ? IS NULL OR date <= ? )
+            AND ( ? IS NULL OR categorie = ? )
+            AND ( ? IS NULL OR classe = ? )
+            AND ( ? IS NULL OR est_revenu = ? )
+        """
+        params = (
+            self.id,
+            date_debut, date_debut,
+            date_fin, date_fin,
+            categorie, categorie,
+            classe, classe,
+            est_revenu, est_revenu
+        )
+
+        # Exécution
+        self.cursor.execute(query, params)
+        resultats = self.cursor.fetchall()
+        return resultats
     def delete_transaction():
         pass
 

@@ -1,23 +1,15 @@
-import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 from Comptabilite import Comptabilite
 
+compta = Comptabilite("./_data/Compte_rework.db")
+
 app = Flask(__name__)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-compta = Comptabilite(os.path.join(BASE_DIR, '_data', 'Compte_rework.db'))
+CORS(app)
 
 
-@app.route('/')
-def index():
-    return render_template('menu_compte.html')
-
-@app.route('/compte')
-def compte():
-    return render_template('compte_sub_menu.html')
-
-
-@app.route('/api/comptes')
+# ── GET tous les comptes ───────────────────────────────────────────
+@app.route('/api/comptes', methods=['GET'])
 def get_comptes():
     comptes = compta.list_all_accounts()
     data = []
@@ -38,149 +30,53 @@ def get_comptes():
             dates = c.get_date_range()
             debut, fin = dates[0], dates[1]
 
-        # count transactions
-        compta.cursor.execute(
-            "SELECT COUNT(*) FROM transactions WHERE compte_id = ?", (c.id,)
-        )
-        nb_transactions = compta.cursor.fetchone()[0]
-
         data.append({
-            "id": c.id,
-            "name": c.name,
-            "devise": c.devise,
-            "actif": c.actif,
-            "debut": debut,
-            "fin": fin,
-            "revenus": revenus,
+            "id":       c.id,
+            "name":     c.name,
+            "devise":   c.devise,
+            "status":   c.actif,
+            "debut":    debut,
+            "fin":      fin,
+            "revenus":  revenus,
             "depenses": depenses,
-            "solde": solde,
-            "nb_transactions": nb_transactions
+            "solde":    solde,
         })
     return jsonify(data)
 
 
-@app.route('/api/comptes/<int:account_id>/edit', methods=['POST'])
-def edit_compte(account_id):
-    compte = compta.get_compte(account_id)
-    if not compte:
-        return jsonify({"error": "Compte introuvable"}), 404
-    body = request.get_json()
-    if 'name' in body:
-        compte.modify_name(body['name'])
-    if 'devise' in body:
-        compte.modify_devise(body['devise'])
-    return jsonify({"success": True, "name": compte.name, "devise": compte.devise})
+# ── POST créer un compte ───────────────────────────────────────────
+@app.route('/api/comptes', methods=['POST'])
+def create_compte():
+    body   = request.get_json()
+    name   = body.get('name', '').strip()
+    devise = body.get('devise', 'EUR').upper()
+
+    compta.add_account(name,devise)
+    return jsonify({"name": name, "devise": devise}), 201
 
 
-@app.route('/api/comptes/<int:account_id>/toggle', methods=['POST'])
+# ── DELETE supprimer un compte ─────────────────────────────────────
+@app.route('/api/comptes/<int:account_id>', methods=['DELETE'])
+def delete_compte(account_id):
+    compta.delete_account(account_id)
+    return jsonify({"deleted": account_id}), 200
+
+
+# ── PATCH toggle actif/inactif ─────────────────────────────────────
+@app.route('/api/comptes/<int:account_id>/toggle', methods=['PATCH'])
 def toggle_compte(account_id):
     compte = compta.get_compte(account_id)
     if not compte:
         return jsonify({"error": "Compte introuvable"}), 404
     compte.toggle_actif()
-    return jsonify({"success": True, "actif": compte.actif})
+    return jsonify({"id": account_id, "actif": compte.actif}), 200
 
 
-@app.route('/api/comptes', methods=['POST'])
-def create_compte():
-    body   = request.get_json()
-    name   = body.get('name', '').strip()
-    devise = body.get('devise', 'EUR').strip().upper()
-    if not name:
-        return jsonify({"error": "Nom requis"}), 400
-    try:
-        metadata = str((devise, 1))
-        compta.cursor.execute(
-            "INSERT INTO comptes (nom_compte, metadata) VALUES (?, ?)",
-            (name, metadata)
-        )
-        compta.con.commit()
-        new_id = compta.cursor.lastrowid
-        return jsonify({"success": True, "id": new_id, "name": name, "devise": devise})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/comptes/<int:account_id>', methods=['DELETE'])
-def delete_compte(account_id):
-    compte = compta.get_compte(account_id)
-    if not compte:
-        return jsonify({"error": "Compte introuvable"}), 404
-    try:
-        compta.cursor.execute("DELETE FROM transactions WHERE compte_id = ?", (account_id,))
-        compta.cursor.execute("DELETE FROM comptes WHERE id = ?", (account_id,))
-        compta.con.commit()
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/virement', methods=['POST'])
-def virement():
-    body        = request.get_json()
-    source_id   = body.get('source_id')
-    dest_id     = body.get('dest_id')
-    date        = body.get('date')
-    commentaire = body.get('commentaire', 'Virement')
-    valeur_src  = float(body.get('valeur_source'))
-    valeur_dest = float(body.get('valeur_dest', valeur_src))
-
-    if not all([source_id, dest_id, date, valeur_src]):
-        return jsonify({"error": "Champs manquants"}), 400
-    if source_id == dest_id:
-        return jsonify({"error": "Source et destination identiques"}), 400
-
-    try:
-        compta.set_intercompte_transfert(
-            source_id, dest_id, date, commentaire, valeur_src, valeur_dest
-        )
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/comptes/<int:account_id>/intercompte')
-def get_intercompte(account_id):
-    """Stats des transactions entre deux comptes"""
-    dest_id = request.args.get('dest_id', type=int)
-    if not dest_id:
-        return jsonify({"error": "dest_id requis"}), 400
-    print("Teste :", account_id, dest_id)
-    df = compta.get_intercompte_stats(account_id, dest_id)
-    return jsonify(df.to_dict(orient='records'))
-
-
-
-@app.route('/api/comptes/<int:account_id>/transactions')
-def get_transactions(account_id):
-    """Retourne les transactions d'un compte, filtrable par classe"""
-    classe = request.args.get('classe')
-    try:
-        if classe:
-            compta.cursor.execute(
-                """SELECT id, date, intitule, categorie, classe, est_revenu, valeur
-                   FROM transactions WHERE compte_id = ? AND classe = ?
-                   ORDER BY date DESC""",
-                (account_id, classe)
-            )
-        else:
-            compta.cursor.execute(
-                """SELECT id, date, intitule, categorie, classe, est_revenu, valeur
-                   FROM transactions WHERE compte_id = ?
-                   ORDER BY date DESC""",
-                (account_id,)
-            )
-        rows = compta.cursor.fetchall()
-        cols = ['id','date','intitule','categorie','classe','est_revenu','valeur']
-        return jsonify([dict(zip(cols, r)) for r in rows])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/intercompte')
-def intercompte():
-    return render_template('intercompte.html')
+# ── Hello (debug) ──────────────────────────────────────────────────
+@app.route('/api/hello', methods=['GET'])
+def hello():
+    return jsonify({"message": "Hello World depuis Flask!", "test": 50})
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)

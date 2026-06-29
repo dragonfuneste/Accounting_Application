@@ -26,6 +26,19 @@ class Comptabilite:
         ids = self.cursor.fetchall()
         return [Compte(i[0], self.cursor, self.con) for i in ids]
 
+    def add_account(self,name:str,devise: str, actif : bool = True ):
+        self.cursor.execute(
+        "INSERT INTO comptes (nom_compte, metadata) VALUES (?, ?)",
+        (name, (devise,actif))
+    )
+        self.con.commit()
+
+    def delete_account(self,account_id : int) :
+        self.cursor.execute("DELETE FROM transactions WHERE compte_id = ?", (account_id,))
+        self.cursor.execute("DELETE FROM comptes WHERE id = ?", (account_id,))
+        self.con.commit()
+
+        
     def close(self):
         """Ferme la connexion proprement"""
         self.con.close()
