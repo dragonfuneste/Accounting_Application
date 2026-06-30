@@ -8,11 +8,10 @@
 .main-panel {
   flex: 1;
   margin-right: var(--sidebar-w);
-  padding: 40px 48px;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .placeholder {
@@ -219,15 +218,54 @@
   gap: 8px;
 }
 
-.status-badge {
+.status-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.status-switch input {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.status-switch-track {
+  width: 30px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.3);
+  position: relative;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.status-switch input:checked + .status-switch-track {
+  background: var(--revenue);
+}
+
+.status-switch-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.15s;
+}
+
+.status-switch input:checked + .status-switch-track .status-switch-thumb {
+  transform: translateX(14px);
+}
+
+.status-switch-label {
   font-size: 0.65rem;
   font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 20px;
   letter-spacing: 0.04em;
 }
-.status-badge.on  { background: rgba(52, 211, 153, 0.15); color: var(--revenue); }
-.status-badge.off { background: rgba(100, 116, 139, 0.2); color: var(--inactive); }
+.status-switch-label.on  { color: var(--revenue); }
+.status-switch-label.off { color: var(--inactive); }
 
 .account-dates {
   font-size: 0.62rem;

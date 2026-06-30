@@ -1,0 +1,88 @@
+.compte-onglets {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.compte-onglets-header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px 0;
+}
+
+.compte-onglets-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.compte-onglets-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.compte-onglets-devise {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.onglets-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.onglet-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #64748B;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.onglet-btn:hover { color: #1E293B; }
+
+.onglet-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.onglet-icon { font-size: 0.95rem; }
+
+.onglets-content {
+  flex: 1;
+  overflow: hidden;
+  padding: 28px 32px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Placeholder when no account is selected */
+.onglets-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.onglets-placeholder .placeholder-icon { font-size: 3rem; color: #CBD5E1; }
+.onglets-placeholder h2 { font-size: 1.1rem; font-weight: 500; color: #64748B; }
+.onglets-placeholder p { font-size: 0.875rem; max-width: 320px; line-height: 1.6; color: #94A3B8; }

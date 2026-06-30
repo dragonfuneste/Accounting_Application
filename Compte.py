@@ -112,8 +112,21 @@ class Compte:
         self.cursor.execute(query, params)
         resultats = self.cursor.fetchall()
         return resultats
-    def delete_transaction():
-        pass
+    
+    
+    def delete_transaction(self,id_transaction : int ):
+        query  = """DELETE FROM transactions 
+        WHERE id = ?;
+        """
+        self.cursor.execute(query, (id_transaction,))
+        
 
-    def modify_transaction():
-        pass
+    def modify_transaction(self , id_transaction :int , date , intitule : str, categorie :str,classe :str,est_revenu : bool , valeur : int):
+        query = """
+        UPDATE transactions
+        (compte_id, date, intitule, categorie, classe, est_revenu, valeur) 
+                VALUES 
+                    (?,?,?,?,?,?,?);
+        WHERE id = ?;
+        """
+        self.cursor.execute(query, (self.id,date,intitule,categorie,classe,est_revenu,valeur,id_transaction))

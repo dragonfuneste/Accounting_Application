@@ -1,0 +1,216 @@
+.vi-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: start;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Colonne gauche : sélection compte destinataire ── */
+.vi-dest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+}
+
+.vi-dest-list h4 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748B;
+  margin-bottom: 4px;
+}
+
+.vi-dest-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: white;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.vi-dest-block:hover { border-color: var(--accent); }
+
+.vi-dest-block.selected {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.vi-dest-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.vi-dest-devise {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.vi-dest-solde {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+}
+.vi-dest-solde.neg { color: var(--expense); }
+
+.vi-empty {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  font-style: italic;
+}
+
+/* ── Colonne droite ───────────────────────────────── */
+.vi-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vi-form-card, .vi-chart-card, .vi-table-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+
+.vi-form-card h4, .vi-chart-card h4, .vi-table-card h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1E293B;
+  margin-bottom: 14px;
+}
+
+/* Form */
+.vi-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+.vi-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vi-comment-label { grid-column: 1 / -1; }
+
+.vi-form-grid label span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #475569;
+}
+
+.vi-form-grid input {
+  font-size: 0.88rem;
+  padding: 8px 11px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  color: #1E293B;
+  transition: border-color 0.15s;
+}
+.vi-form-grid input:focus { border-color: var(--accent); }
+
+.vi-error {
+  color: #DC2626;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+
+.vi-submit-btn {
+  margin-top: 16px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #0F1923;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+.vi-submit-btn:hover:not(:disabled) { background: #22C9B4; }
+.vi-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Chart */
+.vi-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #64748B;
+}
+
+.dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.dep { background: var(--expense); }
+.dot.rev { background: var(--revenue); }
+
+.cumul-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.chart-empty {
+  color: #94A3B8;
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 50px 0;
+  text-align: center;
+}
+
+/* Table */
+.vi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.vi-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94A3B8;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.vi-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #F1F5F9;
+  color: #1E293B;
+  font-variant-numeric: tabular-nums;
+}
+
+.td-dep { color: var(--expense); font-weight: 600; }
+.td-rev { color: var(--revenue); font-weight: 600; }

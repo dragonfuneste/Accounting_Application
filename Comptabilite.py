@@ -27,9 +27,10 @@ class Comptabilite:
         return [Compte(i[0], self.cursor, self.con) for i in ids]
 
     def add_account(self,name:str,devise: str, actif : bool = True ):
+        metadata = str((devise, int(actif)))
         self.cursor.execute(
         "INSERT INTO comptes (nom_compte, metadata) VALUES (?, ?)",
-        (name, (devise,actif))
+        (name, metadata)
     )
         self.con.commit()
 
@@ -38,6 +39,12 @@ class Comptabilite:
         self.cursor.execute("DELETE FROM comptes WHERE id = ?", (account_id,))
         self.con.commit()
 
+    def modify_account(self,account_id:int, name : str, devise : str):
+        compte = self.get_compte(account_id)
+        if (devise is not None) : 
+            compte.modify_devise(devise)
+        if name is not None :
+            compte.modify_name(name)
         
     def close(self):
         """Ferme la connexion proprement"""
@@ -88,6 +95,7 @@ class Comptabilite:
         account_src = self.get_compte(src)
         account_dest = self.get_compte(dest)
 
-        account_src.add_transaction(date,commentaire,str(dest),"Virement",False,valeur_src)
-        account_dest.add_transaction(date,commentaire,str(src),"Virement",True,valeur_dest)
+        account_src.add_transaction(date,commentaire,"Virement",account_dest.name,False,valeur_src)
+        account_dest.add_transaction(date,commentaire,"Virement",account_src.name,True,valeur_dest)
+        self.con.commit()
         logging.info("Virmeent intercompte validé")

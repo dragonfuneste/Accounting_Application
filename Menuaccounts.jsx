@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './Menuaccounts.css';
+import CompteDetail from './CompteDetail';
+import CompteOnglets from './CompteOnglets';
 
 const API = 'http://127.0.0.1:5000/api';
 
@@ -14,16 +16,27 @@ function Toast({ msg }) {
 function ModalAddCompte({ onClose, onAdd }) {
   const [name, setName] = useState('');
   const [devise, setDevise] = useState('EUR');
+  const [error, setError] = useState('');
 
   const submit = async () => {
     if (!name.trim()) return;
-    await fetch(`${API}/comptes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim(), devise }),
-    });
-    onAdd();
-    onClose();
+    setError('');
+    try {
+      const res = await fetch(`${API}/comptes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), devise }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || `Erreur serveur (${res.status})`);
+        return;
+      }
+      onAdd();
+      onClose();
+    } catch {
+      setError('Impossible de joindre le serveur');
+    }
   };
 
   return (
@@ -42,10 +55,52 @@ function ModalAddCompte({ onClose, onAdd }) {
             <span>Devise</span>
             <input value={devise} onChange={e => setDevise(e.target.value)} placeholder="EUR" maxLength={5} />
           </label>
+          {error && <p style={{ color: '#DC2626', fontSize: '0.8rem' }}>{error}</p>}
         </div>
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>Annuler</button>
           <button className="btn-primary" onClick={submit}>Créer</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModalEditCompte({ compte, onClose, onSaved }) {
+  const [name, setName] = useState(compte.name);
+  const [devise, setDevise] = useState(compte.devise);
+
+  const submit = async () => {
+    if (!name.trim()) return;
+    await fetch(`${API}/comptes/${compte.id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.trim(), devise: devise.trim() }),
+    });
+    onSaved();
+    onClose();
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3>Modifier « {compte.name} »</h3>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <label>
+            <span>Nom du compte</span>
+            <input value={name} onChange={e => setName(e.target.value)} autoFocus />
+          </label>
+          <label>
+            <span>Devise</span>
+            <input value={devise} onChange={e => setDevise(e.target.value)} maxLength={5} />
+          </label>
+        </div>
+        <div className="modal-footer">
+          <button className="btn-secondary" onClick={onClose}>Annuler</button>
+          <button className="btn-primary" onClick={submit}>Enregistrer</button>
         </div>
       </div>
     </div>
@@ -77,7 +132,7 @@ function ModalConfirmDelete({ compte, onClose, onDelete }) {
   );
 }
 
-function AccountItem({ compte, isOpen, onToggle, onDeleteClick }) {
+function AccountItem({ compte, isOpen, onToggle, onDeleteClick, onDetailClick, onEditClick, onToggleStatus }) {
   const isActive = compte.status;
 
   return (
@@ -112,9 +167,19 @@ function AccountItem({ compte, isOpen, onToggle, onDeleteClick }) {
           </div>
 
           <div className="account-status-row">
-            <span className={`status-badge ${isActive ? 'on' : 'off'}`}>
-              {isActive ? '● Actif' : '○ Inactif'}
-            </span>
+            <label className="status-switch" onClick={e => e.stopPropagation()}>
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={() => onToggleStatus(compte)}
+              />
+              <span className="status-switch-track">
+                <span className="status-switch-thumb" />
+              </span>
+              <span className={`status-switch-label ${isActive ? 'on' : 'off'}`}>
+                {isActive ? 'Actif' : 'Inactif'}
+              </span>
+            </label>
             {compte.debut && (
               <span className="account-dates">
                 {compte.debut} → {compte.fin}
@@ -123,8 +188,12 @@ function AccountItem({ compte, isOpen, onToggle, onDeleteClick }) {
           </div>
 
           <div className="account-actions">
-            <button className="btn-action">📊 Détails</button>
-            <button className="btn-action">✏️ Modifier</button>
+            <button className="btn-action" onClick={(e) => { e.stopPropagation(); onDetailClick(compte); }}>
+              📊 Détails
+            </button>
+            <button className="btn-action" onClick={(e) => { e.stopPropagation(); onEditClick(compte); }}>
+              ✏️ Modifier
+            </button>
             <button className="btn-action danger" onClick={(e) => { e.stopPropagation(); onDeleteClick(compte); }}>
               🗑
             </button>
@@ -140,6 +209,8 @@ export default function Menuaccounts() {
   const [openId, setOpenId] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
+  const [detailTarget, setDetailTarget] = useState(null);
   const [toast, setToast] = useState('');
 
   const load = useCallback(() => {
@@ -158,9 +229,25 @@ export default function Menuaccounts() {
 
   const handleAdd = () => { load(); showToast('Compte créé ✓'); };
   const handleDelete = () => { load(); showToast('Compte supprimé'); };
+  const handleEditSaved = () => { load(); showToast('Compte mis à jour ✓'); };
 
-  // Stats globales (tous comptes actifs en EUR uniquement pour la somme)
-  const actifs = comptes.filter(c => c.status && c.devise === 'EUR');
+  const handleToggleStatus = async (compte) => {
+    try {
+      const res = await fetch(`${API}/comptes/${compte.id}/toggle`, { method: 'PATCH' });
+      if (!res.ok) {
+        showToast('Erreur lors du changement de statut');
+        return;
+      }
+      const data = await res.json();
+      load();
+      showToast(data.actif ? `${compte.name} activé ✓` : `${compte.name} désactivé`);
+    } catch {
+      showToast('Impossible de joindre le serveur');
+    }
+  };
+
+  const actifs = comptes.filter(c => c.status);
+  const selectedCompte = comptes.find(c => c.id === openId) || null;
   const totalRevenu  = actifs.reduce((s, c) => s + c.revenus, 0);
   const totalDepense = actifs.reduce((s, c) => s + c.depenses, 0);
   const totalSolde   = actifs.reduce((s, c) => s + c.solde, 0);
@@ -168,7 +255,6 @@ export default function Menuaccounts() {
   return (
     <div className="app-layout">
       <aside className="sidebar">
-        {/* Header */}
         <div className="sidebar-header">
           <div className="sidebar-logo">◈</div>
           <h1>Mes Comptes</h1>
@@ -177,7 +263,6 @@ export default function Menuaccounts() {
           </div>
         </div>
 
-        {/* Global stats */}
         <div className="sidebar-global">
           <div className="sidebar-global-row">
             <span className="sidebar-global-label">Revenus totaux</span>
@@ -195,7 +280,6 @@ export default function Menuaccounts() {
           </div>
         </div>
 
-        {/* Account list */}
         <div className="account-list">
           {comptes.length === 0 && (
             <div className="empty-list">Aucun compte trouvé</div>
@@ -205,25 +289,27 @@ export default function Menuaccounts() {
               key={compte.id}
               compte={compte}
               isOpen={openId === compte.id}
-              onToggle={() => setOpenId(openId === compte.id ? null : compte.id)}
+              onToggle={() => {
+                const willOpen = openId !== compte.id;
+                setOpenId(willOpen ? compte.id : null);
+              }}
               onDeleteClick={setDeleteTarget}
+              onToggleStatus={handleToggleStatus}
+              onDetailClick={setDetailTarget}
+              onEditClick={setEditTarget}
             />
           ))}
         </div>
       </aside>
 
-      {/* Main panel */}
       <main className="main-panel">
-        <div className="placeholder">
-          <div className="placeholder-icon">🗂️</div>
-          <h2>Aucun compte sélectionné</h2>
-          <p>Sélectionnez un compte dans la liste pour voir les détails et les statistiques.</p>
-        </div>
+        <CompteOnglets compte={selectedCompte} onAccountsChanged={load} />
       </main>
 
-      {/* Modals */}
       {showAdd && <ModalAddCompte onClose={() => setShowAdd(false)} onAdd={handleAdd} />}
+      {editTarget && <ModalEditCompte compte={editTarget} onClose={() => setEditTarget(null)} onSaved={handleEditSaved} />}
       {deleteTarget && <ModalConfirmDelete compte={deleteTarget} onClose={() => setDeleteTarget(null)} onDelete={handleDelete} />}
+      {detailTarget && <CompteDetail compteId={detailTarget.id} onClose={() => setDetailTarget(null)} />}
 
       <Toast msg={toast} />
     </div>
