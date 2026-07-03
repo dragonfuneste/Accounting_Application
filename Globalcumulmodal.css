@@ -1,0 +1,218 @@
+/* ── Overlay ──────────────────────────────────────── */
+.gc-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.gc-modal {
+  background: white;
+  border-radius: 16px;
+  width: 860px;
+  max-width: 95vw;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+  animation: slideUp 0.18s ease;
+  overflow: hidden;
+}
+@keyframes slideUp { from { transform: translateY(12px); } to { transform: translateY(0); } }
+
+.gc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 26px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.gc-modal-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.gc-close {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: #94A3B8;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+.gc-close:hover { color: #1E293B; background: #F1F5F9; }
+
+.gc-modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 20px 26px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gc-empty {
+  text-align: center;
+  padding: 60px;
+  color: #94A3B8;
+  font-size: 0.85rem;
+}
+
+/* ── Légende ──────────────────────────────────────── */
+.gc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+.gc-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gc-legend-name { color: #475569; font-weight: 500; }
+
+.gc-legend-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+}
+
+/* ── Chart ────────────────────────────────────────── */
+.gc-chart-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gc-svg {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: block;
+}
+
+.gc-tooltip {
+  position: absolute;
+  background: #1E293B;
+  color: #F1F5F9;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gc-tooltip-date {
+  font-size: 0.68rem;
+  color: #94A3B8;
+  margin-bottom: 2px;
+}
+
+.gc-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.gc-tooltip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gc-tooltip-row span:nth-child(2) { flex: 1; }
+.gc-tooltip-row strong { font-variant-numeric: tabular-nums; }
+
+/* ── Slider ───────────────────────────────────────── */
+.gc-slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.gc-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #94A3B8;
+}
+
+.gc-window-label {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.gc-slider-bar {
+  position: relative;
+  height: 28px;
+  user-select: none;
+}
+
+.gc-track {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  left: 0; right: 0;
+  height: 4px;
+  background: #E2E8F0;
+  border-radius: 99px;
+}
+
+.gc-range {
+  position: absolute;
+  top: 50%; transform: translateY(-50%);
+  height: 4px;
+  background: var(--accent);
+  border-radius: 99px;
+  pointer-events: none;
+}
+
+.gc-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2.5px solid var(--accent);
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+.gc-handle:active { cursor: grabbing; }

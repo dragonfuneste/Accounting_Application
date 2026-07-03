@@ -1,0 +1,290 @@
+.pred-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.pred-empty {
+  text-align: center;
+  padding: 48px;
+  color: #94A3B8;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* ── Jauge ─────────────────────────────────────────── */
+.pred-gauge-section {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.gauge-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748B;
+}
+
+.gauge-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.gauge-slider {
+  width: 100%;
+  accent-color: var(--accent);
+  height: 4px;
+  cursor: pointer;
+}
+
+.gauge-bounds {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #94A3B8;
+}
+
+.pred-desc {
+  font-size: 0.82rem;
+  color: #64748B;
+  line-height: 1.6;
+  flex: 1;
+}
+
+/* ── Sections ──────────────────────────────────────── */
+.pred-section {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pred-section h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+}
+
+.pred-chart-hint {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  font-style: italic;
+}
+
+/* ── Tableau prédictions ───────────────────────────── */
+.pred-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.pred-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.pred-table thead {
+  background: #F8FAFC;
+  position: sticky;
+  top: 0;
+}
+
+.pred-table th {
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94A3B8;
+  border-bottom: 1.5px solid var(--border);
+  white-space: nowrap;
+}
+
+.pred-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #F1F5F9;
+  font-variant-numeric: tabular-nums;
+  color: #1E293B;
+}
+
+.pred-table tr.high-proba td { background: rgba(52,211,153,0.04); }
+.pred-table tr.med-proba  td { background: rgba(245,158,11,0.03); }
+
+.pred-intitule { font-weight: 600; max-width: 160px; }
+.pred-cat { color: #64748B; font-size: 0.75rem; }
+.pred-date { color: #475569; }
+
+.pred-val { font-weight: 700; }
+.pred-val.rev { color: #059669; }
+.pred-val.dep { color: #DC2626; }
+
+.type-badge-pred {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.type-badge-pred.rev { background: rgba(52,211,153,0.12); color: #059669; }
+.type-badge-pred.dep { background: rgba(248,113,113,0.12); color: #DC2626; }
+
+/* ── Proba bar ─────────────────────────────────────── */
+.proba-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 120px;
+}
+
+.proba-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #F1F5F9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.proba-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s;
+}
+
+.proba-pct {
+  font-size: 0.72rem;
+  font-weight: 700;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ── Cumul prédictif ───────────────────────────────── */
+.cumul-pred-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pred-svg { width: 100%; height: auto; display: block; }
+
+/* Tooltip */
+.pred-tooltip {
+  position: absolute;
+  background: #1E293B;
+  color: #F1F5F9;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.tooltip-date     { font-size: 0.68rem; color: #94A3B8; }
+.tooltip-intitule { font-weight: 700; margin-bottom: 2px; }
+.tooltip-cumul    { font-weight: 600; color: #A78BFA; }
+.tooltip-val.rev  { color: #34D399; font-weight: 700; }
+.tooltip-val.dep  { color: #F87171; font-weight: 700; }
+.tooltip-sub      { font-size: 0.7rem; color: #94A3B8; }
+.tooltip-sub.rev  { color: #34D399; }
+.tooltip-sub.dep  { color: #F87171; }
+.tooltip-proba    { font-size: 0.68rem; color: #A78BFA; margin-top: 2px; }
+
+/* Summary bar */
+.pred-summary-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.pred-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+}
+
+.pred-summary-item span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94A3B8;
+}
+
+.pred-summary-item strong {
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pred-summary-item.rev strong { color: #059669; }
+.pred-summary-item.dep strong { color: #DC2626; }
+
+.pred-error {
+  background: #FEF2F2;
+  border: 1.5px solid #FECACA;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pred-error p { color: #DC2626; font-weight: 600; font-size: 0.85rem; }
+.pred-error code {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #7F1D1D;
+  background: #FEE2E2;
+  padding: 8px 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.pred-conf-section {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gauge-value.conf { color: #A78BFA; }

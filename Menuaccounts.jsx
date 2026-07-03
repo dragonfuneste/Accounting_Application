@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './Menuaccounts.css';
 import CompteDetail from './CompteDetail';
+import GlobalCumulModal from './GlobalCumulModal';
 import CompteOnglets from './CompteOnglets';
 
 const API = 'http://127.0.0.1:5000/api';
@@ -211,6 +212,7 @@ export default function Menuaccounts() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
   const [detailTarget, setDetailTarget] = useState(null);
+  const [showGlobalCumul, setShowGlobalCumul] = useState(false);
   const [toast, setToast] = useState('');
 
   const load = useCallback(() => {
@@ -263,7 +265,7 @@ export default function Menuaccounts() {
           </div>
         </div>
 
-        <div className="sidebar-global">
+        <div className="sidebar-global" onClick={() => setShowGlobalCumul(true)} title="Voir le graphique global" style={{cursor:'pointer'}}>
           <div className="sidebar-global-row">
             <span className="sidebar-global-label">Revenus totaux</span>
             <span className="sidebar-global-amount rev">{fmt(totalRevenu)}</span>
@@ -310,6 +312,7 @@ export default function Menuaccounts() {
       {editTarget && <ModalEditCompte compte={editTarget} onClose={() => setEditTarget(null)} onSaved={handleEditSaved} />}
       {deleteTarget && <ModalConfirmDelete compte={deleteTarget} onClose={() => setDeleteTarget(null)} onDelete={handleDelete} />}
       {detailTarget && <CompteDetail compteId={detailTarget.id} onClose={() => setDetailTarget(null)} />}
+      {showGlobalCumul && <GlobalCumulModal onClose={() => setShowGlobalCumul(false)} />}
 
       <Toast msg={toast} />
     </div>
