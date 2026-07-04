@@ -1,0 +1,43 @@
+[
+  {
+    "nom_projet": "Voyage au Japon",
+    "Emoji_logo_projet": "🗾",
+    "objectif": "Financer un voyage de 3 semaines au Japon en avril 2027",
+    "priorite": 1,
+    "date_fin": "2027-03-01",
+    "etapes": [
+      {
+        "nom_etape": "Billets d'avion",
+        "objectif": "Aller-retour Paris CDG → Tokyo Narita",
+        "cible": 900.00,
+        "date_fin": "2027-01-15",
+        "etat": "En cours",
+        "priorite": 1,
+        "transactions" : [{"id_transaction" : 1 ,"pourcentage_lié_au_projet" : 100 }],
+        "keywords_pour_propose_transactions": []
+      },
+      {
+        "nom_etape": "Hébergement",
+        "objectif": "Hostels et ryokans pour 21 nuits",
+        "cible": 1200.00,
+        "date_fin": "2027-02-01",
+        "etat": "Annulé",
+        "keywords_pour_propose_transactions": [],
+        "priorite": 2,
+        "transactions" : []
+      },
+      {
+        "nom_etape": "Budget sur place",
+        "objectif": "Nourriture, transports locaux, activités",
+        "cible": 1500.00,
+        "date_fin": "2027-03-01",
+        "etat": "non commencé",
+        "keywords_pour_propose_transactions": [],
+        "priorite": 3,
+        "transactions" : []
+      }
+    ]
+  }
+  
+]
+

@@ -16,7 +16,7 @@ function CumulChart({ rows }) {
   const innerW = width - padL - padR;
   const innerH = height - padT - padB;
 
-  const allValues = rows.flatMap(r => [r.depense_cumule, r.revenu_cumule]);
+  const allValues = rows.flatMap(r => [r.depense_cumule, r.revenu_cumule, r.solde_cumule]);
   const maxVal = Math.max(...allValues, 1);
   const minVal = Math.min(...allValues, 0);
   const range = maxVal - minVal || 1;
@@ -24,8 +24,9 @@ function CumulChart({ rows }) {
   const xFor = i => padL + (i / (rows.length - 1 || 1)) * innerW;
   const yFor = v => padT + innerH - ((v - minVal) / range) * innerH;
 
-  const depPoints = rows.map((r, i) => `${xFor(i)},${yFor(r.depense_cumule)}`).join(' ');
-  const revPoints = rows.map((r, i) => `${xFor(i)},${yFor(r.revenu_cumule)}`).join(' ');
+  const depPoints   = rows.map((r, i) => `${xFor(i)},${yFor(r.depense_cumule)}`).join(' ');
+  const revPoints   = rows.map((r, i) => `${xFor(i)},${yFor(r.revenu_cumule)}`).join(' ');
+  const ecartPoints = rows.map((r, i) => `${xFor(i)},${yFor(r.solde_cumule)}`).join(' ');
 
   const yTicks = 4;
   const yTickVals = Array.from({ length: yTicks + 1 }, (_, i) => minVal + (range / yTicks) * i);
@@ -45,8 +46,9 @@ function CumulChart({ rows }) {
           {rows[i].date}
         </text>
       ))}
-      <polyline points={depPoints} fill="none" stroke="#F87171" strokeWidth="2.2" />
-      <polyline points={revPoints} fill="none" stroke="#34D399" strokeWidth="2.2" />
+      <polyline points={depPoints}   fill="none" stroke="#F87171" strokeWidth="2.2" />
+      <polyline points={revPoints}   fill="none" stroke="#34D399" strokeWidth="2.2" />
+      <polyline points={ecartPoints} fill="none" stroke="#2DD4BF" strokeWidth="2.2" strokeDasharray="5,3" />
     </svg>
   );
 }

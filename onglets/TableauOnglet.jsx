@@ -224,14 +224,17 @@ export default function TableauOnglet({ compte }) {
           onChange={e => setSearch(e.target.value)}
         />
         <div className="toolbar-actions">
-          <button className="btn-add-tx" onClick={() => { setAddingRow(true); setEditingId(null); }}>
+          {!compte.status && (
+            <span className="tx-inactive-warn">⚠ Compte inactif — lecture seule</span>
+          )}
+          <button className="btn-add-tx"
+                  onClick={() => { setAddingRow(true); setEditingId(null); }}
+                  disabled={!compte.status}>
             + Ajouter
           </button>
-          <button
-            className="btn-del-tx"
-            onClick={handleDelete}
-            disabled={!selectedId || !!editingId}
-          >
+          <button className="btn-del-tx"
+                  onClick={handleDelete}
+                  disabled={!selectedId || !!editingId || !compte.status}>
             🗑 Supprimer
           </button>
         </div>
@@ -283,7 +286,7 @@ export default function TableauOnglet({ compte }) {
                     key={row.id}
                     className={`tx-row ${selectedId === row.id ? 'selected' : ''} ${row.est_revenu ? 'is-rev' : 'is-dep'}`}
                     onClick={() => setSelectedId(row.id)}
-                    onDoubleClick={() => { setEditingId(row.id); setAddingRow(false); }}
+                    onDoubleClick={() => { if (compte.status) { setEditingId(row.id); setAddingRow(false); } }}
                   >
                     <td>{row.date}</td>
                     <td>{row.intitule}</td>

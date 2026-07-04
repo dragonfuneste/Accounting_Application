@@ -228,3 +228,13 @@
   color: #94A3B8;
   text-align: right;
 }
+
+.tx-inactive-warn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #92400E;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  padding: 4px 10px;
+  border-radius: 6px;
+}

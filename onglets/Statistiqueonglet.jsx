@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './StatistiqueOnglet.css';
 
 const API = 'http://127.0.0.1:5000/api';
@@ -7,75 +7,48 @@ function fmt(n) {
   return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-/* ── Frise chronologique ─────────────────────────────────────── */
-function TimelineSlider({ months, debut, fin, onChange }) {
-  const iStart = months.indexOf(debut);
-  const iEnd   = months.indexOf(fin);
-  const dragging = useRef(null);
-  const barRef   = useRef(null);
-
-  const getPct = e => {
-    const rect = barRef.current.getBoundingClientRect();
-    return Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  };
-
-  const onMouseDown = (handle, e) => {
-    e.preventDefault();
-    dragging.current = handle;
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  };
-
-  const onMouseMove = useCallback(e => {
-    if (!dragging.current) return;
-    const pct = getPct(e);
-    const idx  = Math.round(pct * (months.length - 1));
-    const m    = months[idx];
-    if (dragging.current === 'start') {
-      if (idx <= months.indexOf(fin)) onChange(m, fin);
-    } else {
-      if (idx >= months.indexOf(debut)) onChange(debut, m);
-    }
-  }, [months, debut, fin, onChange]);
-
-  const onMouseUp = useCallback(() => {
-    dragging.current = null;
-    window.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('mouseup', onMouseUp);
-  }, [onMouseMove]);
-
+/* ── Sélecteur de période ───────────────────────────────────── */
+function PeriodSelector({ months, debut, fin, onChange }) {
   if (!months.length) return null;
-  const pStart = iStart / (months.length - 1);
-  const pEnd   = iEnd   / (months.length - 1);
-
   return (
-    <div className="timeline-wrap">
-      <div className="timeline-labels">
-        <span>{months[0]}</span>
-        <span className="tl-selection">{debut} → {fin}</span>
-        <span>{months[months.length - 1]}</span>
-      </div>
-      <div className="timeline-bar" ref={barRef}>
-        <div className="tl-track" />
-        <div className="tl-range" style={{ left: `${pStart*100}%`, width: `${(pEnd-pStart)*100}%` }} />
-        {months.map((m, i) => (
-          <div
-            key={m}
-            className={`tl-tick ${m === debut || m === fin ? 'edge' : (i > iStart && i < iEnd ? 'in' : '')}`}
-            style={{ left: `${(i/(months.length-1))*100}%` }}
-            onClick={() => {
-              if (i < months.indexOf(debut) || Math.abs(i - iStart) < Math.abs(i - iEnd))
-                onChange(m, fin);
-              else
-                onChange(debut, m);
-            }}
-          />
-        ))}
-        <div className="tl-handle" style={{ left: `${pStart*100}%` }}
-             onMouseDown={e => onMouseDown('start', e)} title={debut} />
-        <div className="tl-handle" style={{ left: `${pEnd*100}%` }}
-             onMouseDown={e => onMouseDown('end', e)} title={fin} />
-      </div>
+    <div className="period-selector">
+      <span className="period-label">Période</span>
+      <select
+        className="period-select"
+        value={debut}
+        onChange={e => {
+          const v = e.target.value;
+          if (v <= fin) onChange(v, fin);
+          else onChange(v, v);
+        }}
+      >
+        {months.map(m => <option key={m} value={m}>{m}</option>)}
+      </select>
+      <span className="period-arrow">→</span>
+      <select
+        className="period-select"
+        value={fin}
+        onChange={e => {
+          const v = e.target.value;
+          if (v >= debut) onChange(debut, v);
+          else onChange(v, v);
+        }}
+      >
+        {months.map(m => <option key={m} value={m}>{m}</option>)}
+      </select>
+      <button className="period-btn" onClick={() => onChange(months[0], months[months.length-1])}>
+        Tout
+      </button>
+      <button className="period-btn" onClick={() => {
+        const last = months[months.length-1];
+        const from = months[Math.max(0, months.length-3)];
+        onChange(from, last);
+      }}>3 mois</button>
+      <button className="period-btn" onClick={() => {
+        const last = months[months.length-1];
+        const from = months[Math.max(0, months.length-12)];
+        onChange(from, last);
+      }}>12 mois</button>
     </div>
   );
 }
@@ -357,7 +330,7 @@ export default function StatistiqueOnglet({ compte }) {
 
       {/* Frise chronologique */}
       <div className="stat-section">
-        <TimelineSlider
+        <PeriodSelector
           months={months}
           debut={debut}
           fin={fin}

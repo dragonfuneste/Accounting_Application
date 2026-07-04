@@ -214,3 +214,5 @@
 
 .td-dep { color: var(--expense); font-weight: 600; }
 .td-rev { color: var(--revenue); font-weight: 600; }
+
+.dot.ecart { background: #2DD4BF; }
