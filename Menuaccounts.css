@@ -402,3 +402,48 @@
 .sidebar-global:hover::after {
   color: var(--accent);
 }
+
+/* ── Toggle mode comptes/projets ──────────────────── */
+.sidebar-mode-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.sidebar-mode-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.sidebar-mode-arrow {
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+/* Hint projets dans sidebar */
+.sidebar-proj-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+}
+.sidebar-proj-icon { font-size: 2rem; }
+.sidebar-proj-hint p {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

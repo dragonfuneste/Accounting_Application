@@ -1,43 +1,141 @@
 [
   {
-    "nom_projet": "Voyage au Japon",
-    "Emoji_logo_projet": "🗾",
-    "objectif": "Financer un voyage de 3 semaines au Japon en avril 2027",
-    "priorite": 1,
-    "date_fin": "2027-03-01",
+    "id": "5b778ab7-8387-490c-a3dd-83241151c887",
+    "nom_projet": "Nouveau PC fixe",
+    "Emoji_logo_projet": "🖥️",
+    "objectif": "Faire un nouveau PC qu'il va me tenir plusieurs année ",
+    "priorite": 2,
+    "date_fin": "2026-12-31",
     "etapes": [
       {
-        "nom_etape": "Billets d'avion",
-        "objectif": "Aller-retour Paris CDG → Tokyo Narita",
-        "cible": 900.00,
-        "date_fin": "2027-01-15",
-        "etat": "En cours",
+        "id": "ad10ac18-709e-40ad-87af-ec9723c7c0b7",
+        "nom_etape": "Carte Graphique",
+        "objectif": "",
+        "cible": 700.0,
+        "date_fin": "2026-12-31",
+        "etat": "non commencé",
         "priorite": 1,
-        "transactions" : [{"id_transaction" : 1 ,"pourcentage_lié_au_projet" : 100 }],
+        "transactions": [],
         "keywords_pour_propose_transactions": []
       },
       {
-        "nom_etape": "Hébergement",
-        "objectif": "Hostels et ryokans pour 21 nuits",
-        "cible": 1200.00,
-        "date_fin": "2027-02-01",
-        "etat": "Annulé",
-        "keywords_pour_propose_transactions": [],
-        "priorite": 2,
-        "transactions" : []
+        "id": "756ce629-a387-4b81-a106-ec453ceaf38e",
+        "nom_etape": "CPU ",
+        "objectif": "",
+        "cible": 500.0,
+        "date_fin": "2026-12-31",
+        "etat": "non commencé",
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
       },
       {
-        "nom_etape": "Budget sur place",
-        "objectif": "Nourriture, transports locaux, activités",
-        "cible": 1500.00,
-        "date_fin": "2027-03-01",
+        "id": "4bad64bd-512d-47ba-aae7-623f3353d2f3",
+        "nom_etape": "Tour + alimentation",
+        "objectif": "",
+        "cible": 200.0,
+        "date_fin": "2026-12-31",
         "etat": "non commencé",
-        "keywords_pour_propose_transactions": [],
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      },
+      {
+        "id": "719eb52b-65c1-44d0-a37b-e0045aa1bdc0",
+        "nom_etape": "RAM",
+        "objectif": "",
+        "cible": 700.0,
+        "date_fin": "2026-12-31",
+        "etat": "non commencé",
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      }
+    ]
+  },
+  {
+    "id": "8b46fbb2-b59f-4b61-9da1-b9a0a28c0a57",
+    "nom_projet": "Chat",
+    "Emoji_logo_projet": "😽",
+    "objectif": "Adoption d'un chat",
+    "priorite": 10,
+    "date_fin": "2027-12-31",
+    "etapes": [
+      {
+        "id": "3082236d-ea06-4fac-9a1c-b2007c9484f0",
+        "nom_etape": "Adoption",
+        "objectif": "",
+        "cible": 200.0,
+        "date_fin": "2027-12-31",
+        "etat": "non commencé",
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      },
+      {
+        "id": "70762b8d-d2ce-465c-b702-13d4c0e1db36",
+        "nom_etape": "Achat de matériell",
+        "objectif": "",
+        "cible": 200.0,
+        "date_fin": "2026-12-31",
+        "etat": "non commencé",
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      }
+    ]
+  },
+  {
+    "id": "619eb3a8-fd92-48e6-a5d0-d74b96b8ae68",
+    "nom_projet": "Mise en place de l'argent",
+    "Emoji_logo_projet": "💰",
+    "objectif": "Stockage d'argent cool",
+    "priorite": 1,
+    "date_fin": "2026-08-31",
+    "etapes": [
+      {
+        "id": "29f1b89e-893b-4683-8aac-9f0db2bc6aac",
+        "nom_etape": "Step 1 ",
+        "objectif": "premier seuil d'économie",
+        "cible": 10000.0,
+        "date_fin": "2027-08-31",
+        "etat": "En cours",
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      },
+      {
+        "id": "5b099b07-c551-4c7f-9082-2cb015b7453b",
+        "nom_etape": "Step 2",
+        "objectif": "",
+        "cible": 5000.0,
+        "date_fin": "2026-08-31",
+        "etat": "non commencé",
+        "priorite": 1,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      }
+    ]
+  },
+  {
+    "id": "f5de4271-5364-4aa8-a751-b64c2ce9ea0e",
+    "nom_projet": "Tablette graphique",
+    "Emoji_logo_projet": "🖊️",
+    "objectif": "",
+    "priorite": 2,
+    "date_fin": "2026-12-31",
+    "etapes": [
+      {
+        "id": "7deeaad4-944b-43b1-8c6b-3c56d1ecde13",
+        "nom_etape": "Tablette graphique",
+        "objectif": "",
+        "cible": 400.0,
+        "date_fin": "2026-12-31",
+        "etat": "non commencé",
         "priorite": 3,
-        "transactions" : []
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
       }
     ]
   }
-  
 ]
-

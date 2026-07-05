@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './Menuaccounts.css';
 import CompteDetail from './CompteDetail';
 import GlobalCumulModal from './GlobalCumulModal';
+import ProjetOnglet from './ProjetOnglet';
 import CompteOnglets from './CompteOnglets';
 
 const API = 'http://127.0.0.1:5000/api';
@@ -213,6 +214,7 @@ export default function Menuaccounts() {
   const [editTarget, setEditTarget] = useState(null);
   const [detailTarget, setDetailTarget] = useState(null);
   const [showGlobalCumul, setShowGlobalCumul] = useState(false);
+  const [mode, setMode] = useState('comptes'); // 'comptes' | 'projets'
   const [toast, setToast] = useState('');
 
   const load = useCallback(() => {
@@ -258,10 +260,15 @@ export default function Menuaccounts() {
     <div className="app-layout">
       <aside className="sidebar">
         <div className="sidebar-header">
-          <div className="sidebar-logo">◈</div>
-          <h1>Mes Comptes</h1>
+          <span className="sidebar-logo">◈</span>
+          <button className="sidebar-mode-btn" onClick={() => setMode(m => m === 'comptes' ? 'projets' : 'comptes')}>
+            {mode === 'comptes' ? 'Mes Comptes' : 'Mes Projets'}
+            <span className="sidebar-mode-arrow">⇄</span>
+          </button>
           <div className="sidebar-header-actions">
-            <button className="btn-icon" title="Ajouter un compte" onClick={() => setShowAdd(true)}>＋</button>
+            {mode === 'comptes' && (
+              <button className="btn-icon" title="Ajouter un compte" onClick={() => setShowAdd(true)}>＋</button>
+            )}
           </div>
         </div>
 
@@ -283,29 +290,41 @@ export default function Menuaccounts() {
         </div>
 
         <div className="account-list">
-          {comptes.length === 0 && (
-            <div className="empty-list">Aucun compte trouvé</div>
+          {mode === 'comptes' ? (
+            <>
+              {comptes.length === 0 && <div className="empty-list">Aucun compte trouvé</div>}
+              {comptes.map(compte => (
+                <AccountItem
+                  key={compte.id}
+                  compte={compte}
+                  isOpen={openId === compte.id}
+                  onToggle={() => {
+                    const willOpen = openId !== compte.id;
+                    setOpenId(willOpen ? compte.id : null);
+                  }}
+                  onDeleteClick={setDeleteTarget}
+                  onToggleStatus={handleToggleStatus}
+                  onDetailClick={setDetailTarget}
+                  onEditClick={setEditTarget}
+                />
+              ))}
+            </>
+          ) : (
+            <div className="sidebar-proj-hint">
+              <span className="sidebar-proj-icon">🗂</span>
+              <p>Les projets s'affichent dans le panneau principal</p>
+            </div>
           )}
-          {comptes.map(compte => (
-            <AccountItem
-              key={compte.id}
-              compte={compte}
-              isOpen={openId === compte.id}
-              onToggle={() => {
-                const willOpen = openId !== compte.id;
-                setOpenId(willOpen ? compte.id : null);
-              }}
-              onDeleteClick={setDeleteTarget}
-              onToggleStatus={handleToggleStatus}
-              onDetailClick={setDetailTarget}
-              onEditClick={setEditTarget}
-            />
-          ))}
         </div>
       </aside>
 
       <main className="main-panel">
-        <CompteOnglets compte={selectedCompte} onAccountsChanged={load} />
+        {mode === 'projets'
+          ? <div style={{padding:'28px 32px',flex:1,display:'flex',flexDirection:'column',minHeight:0}}>
+              <ProjetOnglet />
+            </div>
+          : <CompteOnglets compte={selectedCompte} onAccountsChanged={load} />
+        }
       </main>
 
       {showAdd && <ModalAddCompte onClose={() => setShowAdd(false)} onAdd={handleAdd} />}

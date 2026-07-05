@@ -772,3 +772,67 @@ def init_global_blueprint(compta):
         return jsonify(result)
 
     return global_bp
+
+
+def init_projet_blueprint(manager):
+    from flask import Blueprint
+    proj_bp = Blueprint('projets', __name__, url_prefix='/api/projets')
+
+    @proj_bp.route('', methods=['GET'])
+    def list_projets():
+        return jsonify(manager.list_projets())
+
+    @proj_bp.route('', methods=['POST'])
+    def add_projet():
+        return jsonify(manager.add_projet(request.get_json())), 201
+
+    @proj_bp.route('/<pid>', methods=['PUT'])
+    def update_projet(pid):
+        r = manager.update_projet(pid, request.get_json())
+        return jsonify(r) if r else (jsonify({"error": "Introuvable"}), 404)
+
+    @proj_bp.route('/<pid>', methods=['DELETE'])
+    def delete_projet(pid):
+        return jsonify({"success": manager.delete_projet(pid)})
+
+    # ── Étapes ────────────────────────────────────────────────────
+    @proj_bp.route('/<pid>/etapes', methods=['POST'])
+    def add_etape(pid):
+        r = manager.add_etape(pid, request.get_json())
+        return jsonify(r) if r else (jsonify({"error": "Projet introuvable"}), 404)
+
+    @proj_bp.route('/<pid>/etapes/<eid>', methods=['PUT'])
+    def update_etape(pid, eid):
+        r = manager.update_etape(pid, eid, request.get_json())
+        return jsonify(r) if r else (jsonify({"error": "Introuvable"}), 404)
+
+    @proj_bp.route('/<pid>/etapes/<eid>', methods=['DELETE'])
+    def delete_etape(pid, eid):
+        return jsonify({"success": manager.delete_etape(pid, eid)})
+
+    # ── Transactions d'une étape ───────────────────────────────────
+    @proj_bp.route('/<pid>/etapes/<eid>/transactions', methods=['POST'])
+    def add_tx(pid, eid):
+        body   = request.get_json()
+        tx_id  = int(body['tx_id'])
+        pct    = float(body.get('pourcentage', 100))
+        result = manager.add_transaction_etape(pid, eid, tx_id, pct)
+        if "error" in result:
+            return jsonify(result), 400
+        return jsonify(result), 201
+
+    @proj_bp.route('/<pid>/etapes/<eid>/transactions/<int:tx_id>', methods=['DELETE'])
+    def remove_tx(pid, eid, tx_id):
+        return jsonify(manager.remove_transaction_etape(pid, eid, tx_id))
+
+    @proj_bp.route('/tx/<int:tx_id>/disponibilite', methods=['GET'])
+    def tx_dispo(tx_id):
+        return jsonify(manager.tx_disponibilite(tx_id))
+
+    @proj_bp.route('/search_transactions', methods=['GET'])
+    def search_tx():
+        keywords = request.args.getlist('kw')
+        compte_id = request.args.get('compte_id', type=int)
+        return jsonify(manager.search_transactions(keywords, compte_id))
+
+    return proj_bp
