@@ -1,5 +1,5 @@
 import sqlite3
-from Compte import Compte
+from back_end.Compte import Compte
 import logging 
 import pandas as pd
 class Comptabilite: 

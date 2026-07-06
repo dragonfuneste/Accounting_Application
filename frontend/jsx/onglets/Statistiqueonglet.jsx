@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import './StatistiqueOnglet.css';
+import '../../css/StatistiqueOnglet.css';
 
 const API = 'http://127.0.0.1:5000/api';
 

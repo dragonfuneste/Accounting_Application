@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import TableauOnglet from './onglets/TableauOnglet';
-import VirementIntercompteOnglet from './onglets/VirementIntercompteOnglet';
-import StatistiqueOnglet from './onglets/StatistiqueOnglet';
-import PredictionOnglet from './onglets/PredictionOnglet';
-import './CompteOnglets.css';
+import TableauOnglet from '../onglets/TableauOnglet';
+import VirementIntercompteOnglet from '../onglets/VirementIntercompteOnglet';
+import StatistiqueOnglet from '../onglets/StatistiqueOnglet';
+import PredictionOnglet from '../onglets/PredictionOnglet';
+import '../../css/CompteOnglets.css';
 
 const TABS = [
   { key: 'tableau',    label: 'Tableau',   icon: '📋' },

@@ -264,7 +264,20 @@ class ProjetManager:
         return {"tx_id": tx_id, "utilise": round(utilise, 1), "restant": round(max(0.0, 100 - utilise), 1)}
 
     def search_transactions(self, keywords: list, compte_id: int = None) -> list:
-        if not keywords: return []
+        cur = self._cur()
+        # Si aucun keyword → retourner toutes les transactions
+        if not keywords or all(k.strip() == '' for k in keywords):
+            q = "SELECT id,compte_id,date,intitule,categorie,classe,est_revenu,valeur FROM transactions"
+            params = []
+            if compte_id:
+                q += " WHERE compte_id=?"
+                params.append(compte_id)
+            q += " ORDER BY date DESC LIMIT 200"
+            cur.execute(q, params)
+            cols = ['id','compte_id','date','intitule','categorie','classe','est_revenu','valeur']
+            return [dict(zip(cols, r)) for r in cur.fetchall()]
+
+        # Sinon filtrer par keywords
         conds  = " OR ".join("classe LIKE ? OR categorie LIKE ? OR intitule LIKE ?" for _ in keywords)
         params = []
         for kw in keywords:
@@ -273,8 +286,7 @@ class ProjetManager:
         if compte_id:
             q += " AND compte_id=?"
             params.append(compte_id)
-        q += " ORDER BY date DESC LIMIT 50"
-        cur = self._cur()
+        q += " ORDER BY date DESC LIMIT 200"
         cur.execute(q, params)
         cols = ['id','compte_id','date','intitule','categorie','classe','est_revenu','valeur']
         return [dict(zip(cols, r)) for r in cur.fetchall()]

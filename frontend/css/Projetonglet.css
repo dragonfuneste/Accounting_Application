@@ -597,3 +597,38 @@
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideIn { from { transform: translateY(8px); } to { transform: translateY(0); } }
+
+/* ── Filtres modal tx ─────────────────────────────── */
+.tx-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tx-compte-select {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  color: #1E293B;
+  background: white;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+.tx-compte-select:focus { border-color: var(--accent); }
+
+.tx-search-input {
+  flex: 1;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  color: #1E293B;
+  transition: border-color 0.15s;
+}
+.tx-search-input:focus { border-color: var(--accent); }

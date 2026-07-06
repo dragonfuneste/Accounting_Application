@@ -101,8 +101,27 @@
         "date_fin": "2027-08-31",
         "etat": "En cours",
         "priorite": 1,
-        "transactions": [],
-        "keywords_pour_propose_transactions": []
+        "transactions": [
+          {
+            "id_transaction": 2972,
+            "pourcentage_lié_au_projet": 100.0
+          },
+          {
+            "id_transaction": 2897,
+            "pourcentage_lié_au_projet": 100.0
+          },
+          {
+            "id_transaction": 2872,
+            "pourcentage_lié_au_projet": 100.0
+          },
+          {
+            "id_transaction": 2875,
+            "pourcentage_lié_au_projet": 100.0
+          }
+        ],
+        "keywords_pour_propose_transactions": [
+          "Compte_Courant"
+        ]
       },
       {
         "id": "5b099b07-c551-4c7f-9082-2cb015b7453b",
@@ -133,6 +152,27 @@
         "date_fin": "2026-12-31",
         "etat": "non commencé",
         "priorite": 3,
+        "transactions": [],
+        "keywords_pour_propose_transactions": []
+      }
+    ]
+  },
+  {
+    "id": "94a0343e-dca4-4a07-a79d-24a568e6ea4d",
+    "nom_projet": "Inscription Doctoral ",
+    "Emoji_logo_projet": "📇",
+    "objectif": "Inscription Doctoral ",
+    "priorite": 4,
+    "date_fin": "2026-08-31",
+    "etapes": [
+      {
+        "id": "05b9758d-72b5-4333-ac9b-d08631d8a255",
+        "nom_etape": "Inscription Doctoral ",
+        "objectif": "",
+        "cible": 500.0,
+        "date_fin": "2026-09-01",
+        "etat": "non commencé",
+        "priorite": 1,
         "transactions": [],
         "keywords_pour_propose_transactions": []
       }

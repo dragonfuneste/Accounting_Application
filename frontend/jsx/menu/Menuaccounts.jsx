@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import './Menuaccounts.css';
+import '../../css/Menuaccounts.css';
 import CompteDetail from './CompteDetail';
-import GlobalCumulModal from './GlobalCumulModal';
-import ProjetOnglet from './ProjetOnglet';
+import GlobalCumulModal from './Globalcumulmodal';
+import ProjetOnglet from './Projetonglet';
 import CompteOnglets from './CompteOnglets';
 
 const API = 'http://127.0.0.1:5000/api';

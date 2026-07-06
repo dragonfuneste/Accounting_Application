@@ -1,8 +1,8 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from Comptabilite import Comptabilite
-from Projet import ProjetManager
+from back_end.Comptabilite import Comptabilite
+from back_end.Projet import ProjetManager
 from blueprint_menu import (
     init_menu_blueprint,
     init_transactions_blueprint,

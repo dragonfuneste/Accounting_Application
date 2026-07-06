@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import './GlobalCumulModal.css';
+import '../../css/GlobalCumulModal.css';
 
 const API = 'http://127.0.0.1:5000/api';
 const COLORS = ['#2DD4BF','#60A5FA','#F472B6','#34D399','#F97316','#A78BFA','#FACC15','#F87171'];

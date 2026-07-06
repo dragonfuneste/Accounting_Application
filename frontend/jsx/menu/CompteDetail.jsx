@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './CompteDetail.css';
+import '../../css/CompteDetail.css';
 
 const API = 'http://127.0.0.1:5000/api';
 

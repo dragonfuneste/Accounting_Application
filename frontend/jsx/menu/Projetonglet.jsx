@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import './ProjetOnglet.css';
+import '../../css/ProjetOnglet.css';
 
 const API = 'http://127.0.0.1:5000/api';
 
@@ -129,28 +129,38 @@ function EtapeForm({ initial, onSave, onClose }) {
 }
 
 /* ── Modal liaison transaction ────────────────────── */
-function TxLinkModal({ etape, projetId, onClose, onLinked }) {
-  const [query, setQuery]     = useState('');
-  const [results, setResults] = useState([]);
-  const [selected, setSelected] = useState(null);
-  const [pct, setPct]           = useState(100);
-  const [dispo, setDispo]       = useState(null);
-  const [error, setError]       = useState('');
+function TxLinkModal({ etape, projetId, onClose, onLinked, comptes }) {
+  const [query, setQuery]         = useState('');
+  const [compteFilter, setCompte] = useState('');  // '' = tous
+  const [allTxs, setAllTxs]       = useState([]);
+  const [results, setResults]     = useState([]);
+  const [selected, setSelected]   = useState(null);
+  const [pct, setPct]             = useState(100);
+  const [dispo, setDispo]         = useState(null);
+  const [error, setError]         = useState('');
 
-  // Suggestions depuis les keywords de l'étape
+  // Charger TOUTES les transactions au démarrage
   useEffect(() => {
-    if (etape.keywords?.length) {
-      const kws = etape.keywords.map(k => `kw=${encodeURIComponent(k)}`).join('&');
-      fetch(`${API}/projets/search_transactions?${kws}`)
-        .then(r => r.json()).then(setResults).catch(() => {});
-    }
-  }, [etape.keywords]);
+    fetch(`${API}/projets/search_transactions?kw=`)
+      .then(r => r.json())
+      .then(data => { setAllTxs(data); setResults(data); })
+      .catch(() => {});
+  }, []);
 
-  const search = () => {
-    if (!query.trim()) return;
-    fetch(`${API}/projets/search_transactions?kw=${encodeURIComponent(query)}`)
-      .then(r => r.json()).then(setResults).catch(() => {});
-  };
+  // Filtrer en temps réel (recherche + compte)
+  useEffect(() => {
+    const q = query.trim().toLowerCase();
+    let filtered = allTxs;
+    if (compteFilter) filtered = filtered.filter(tx => tx.compte_id === Number(compteFilter));
+    if (q) filtered = filtered.filter(tx =>
+      tx.intitule?.toLowerCase().includes(q) ||
+      tx.categorie?.toLowerCase().includes(q) ||
+      tx.classe?.toLowerCase().includes(q) ||
+      String(tx.valeur).includes(q) ||
+      tx.date?.includes(q)
+    );
+    setResults(filtered);
+  }, [query, compteFilter, allTxs]);
 
   const selectTx = tx => {
     setSelected(tx);
@@ -176,12 +186,18 @@ function TxLinkModal({ etape, projetId, onClose, onLinked }) {
   return (
     <Modal title={`Lier une transaction — ${etape.nom_etape}`} onClose={onClose}>
       <div className="proj-modal-body">
-        {/* Barre de recherche */}
-        <div className="tx-search-bar">
-          <input value={query} onChange={e => setQuery(e.target.value)}
-                 onKeyDown={e => e.key === 'Enter' && search()}
-                 placeholder="Rechercher par intitulé, classe, catégorie…" />
-          <button className="btn-primary" onClick={search}>Rechercher</button>
+        {/* Filtres */}
+        <div className="tx-filters">
+          <select className="tx-compte-select" value={compteFilter}
+                  onChange={e => setCompte(e.target.value)}>
+            <option value="">Tous les comptes</option>
+            {(comptes || []).map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          <input className="tx-search-input" value={query}
+                 onChange={e => setQuery(e.target.value)}
+                 placeholder="Rechercher intitulé, classe, catégorie, valeur…" />
         </div>
 
         {/* Keywords suggérés */}
@@ -197,13 +213,16 @@ function TxLinkModal({ etape, projetId, onClose, onLinked }) {
 
         {/* Résultats */}
         <div className="tx-results">
+          {results.length === 0 && allTxs.length > 0 && (
+            <p className="tx-empty">Aucun résultat pour cette recherche</p>
+          )}
           {results.map(tx => (
             <div key={tx.id}
                  className={`tx-result-row ${selected?.id === tx.id ? 'selected' : ''}`}
                  onClick={() => selectTx(tx)}>
               <span className="tx-r-date">{tx.date}</span>
               <span className="tx-r-intitule">{tx.intitule}</span>
-              <span className="tx-r-cat">{tx.categorie}</span>
+              <span className="tx-r-cat">{tx.categorie} / {tx.classe}</span>
               <span className={`tx-r-val ${tx.est_revenu ? 'rev' : 'dep'}`}>
                 {tx.est_revenu ? '+' : '−'}{fmt(tx.valeur)}
               </span>
@@ -249,7 +268,7 @@ function TxLinkModal({ etape, projetId, onClose, onLinked }) {
 }
 
 /* ── Bloc étape ───────────────────────────────────── */
-function EtapeBloc({ etape, projetId, onUpdated, onDelete }) {
+function EtapeBloc({ etape, projetId, onUpdated, onDelete, comptes }) {
   const [showTxModal,   setShowTxModal]   = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDelConfirm, setShowDelConfirm] = useState(false);
@@ -355,7 +374,7 @@ function EtapeBloc({ etape, projetId, onUpdated, onDelete }) {
       )}
 
       {showTxModal && (
-        <TxLinkModal etape={etape} projetId={projetId}
+        <TxLinkModal etape={etape} projetId={projetId} comptes={comptes}
           onClose={() => setShowTxModal(false)} onLinked={onUpdated} />
       )}
     </div>
@@ -363,7 +382,7 @@ function EtapeBloc({ etape, projetId, onUpdated, onDelete }) {
 }
 
 /* ── Vue détail projet ────────────────────────────── */
-function ProjetDetail({ projet, onBack, onUpdated }) {
+function ProjetDetail({ projet, onBack, onUpdated, comptes }) {
   const [showAddEtape, setShowAddEtape] = useState(false);
 
   const addEtape = async form => {
@@ -436,6 +455,7 @@ function ProjetDetail({ projet, onBack, onUpdated }) {
             projetId={projet.id}
             onUpdated={onUpdated}
             onDelete={deleteEtape}
+            comptes={comptes}
           />
         ))}
         {etapesSorted.length === 0 && (
@@ -500,6 +520,7 @@ function ProjetCard({ projet, onClick, onEdit, onDelete }) {
 /* ── Composant principal ──────────────────────────── */
 export default function ProjetOnglet() {
   const [projets, setProjets]           = useState([]);
+  const [comptes, setComptes]           = useState([]);
   const [loading, setLoading]           = useState(true);
   const [selected, setSelected]         = useState(null); // projet actif en détail
   const [showAdd, setShowAdd]           = useState(false);
@@ -507,10 +528,14 @@ export default function ProjetOnglet() {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const load = useCallback(() => {
-    fetch(`${API}/projets`)
-      .then(r => r.json())
-      .then(d => { setProjets(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch(`${API}/projets`).then(r => r.json()),
+      fetch(`${API}/comptes`).then(r => r.json()),
+    ]).then(([projs, cpts]) => {
+      setProjets(projs);
+      setComptes(cpts);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -563,6 +588,7 @@ export default function ProjetOnglet() {
         projet={selected}
         onBack={() => setSelected(null)}
         onUpdated={() => load()}
+        comptes={comptes}
       />
     );
   }

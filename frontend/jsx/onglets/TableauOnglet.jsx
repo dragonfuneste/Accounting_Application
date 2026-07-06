@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import './TableauOnglet.css';
+import '../../css/TableauOnglet.css';
 
 const API = 'http://127.0.0.1:5000/api';
 const COLS = ['date', 'intitule', 'categorie', 'classe', 'est_revenu', 'valeur'];
