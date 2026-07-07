@@ -1,4 +1,7 @@
 __pycache__/
 node_modules/
-
+frontend_dist/
+dist_backend/
+dist/
+build_temp/
 
