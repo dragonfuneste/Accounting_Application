@@ -5,3 +5,5 @@ dist_backend/
 dist/
 build_temp/
 
+electron/release/
+electron/node_modules/

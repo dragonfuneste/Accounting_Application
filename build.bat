@@ -39,7 +39,11 @@ echo.
 echo [4/4] Build de l'application Electron...
 cd electron
 call npm install --quiet
+call npm audit fix --force
+call $env:CSC_IDENTITY_AUTO_DISCOVERY = "false"
+call npm approve-scripts electron-winstaller
 call npm run build:win
+
 if errorlevel 1 (
     echo ERREUR: electron-builder a echoue
     pause

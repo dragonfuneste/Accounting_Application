@@ -91,7 +91,7 @@
     "Emoji_logo_projet": "💰",
     "objectif": "Stockage d'argent cool",
     "priorite": 1,
-    "date_fin": "2026-08-31",
+    "date_fin": "2027-08-31",
     "etapes": [
       {
         "id": "29f1b89e-893b-4683-8aac-9f0db2bc6aac",
@@ -128,7 +128,7 @@
         "nom_etape": "Step 2",
         "objectif": "",
         "cible": 5000.0,
-        "date_fin": "2026-08-31",
+        "date_fin": "2027-08-31",
         "etat": "non commencé",
         "priorite": 1,
         "transactions": [],
