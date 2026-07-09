@@ -26,8 +26,15 @@
     ],
     "extraResources": [
       {
-        "from": "../dist_backend/accounting_server",
-        "to": "backend",
+        "from": "../dist/backend_app.exe",
+        "to": "backend/backend_app.exe",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../_data",
+        "to": "_data",
         "filter": [
           "**/*"
         ]

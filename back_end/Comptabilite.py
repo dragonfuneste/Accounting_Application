@@ -5,6 +5,9 @@ import pandas as pd
 class Comptabilite: 
     def __init__(self, name):
         # On ajoute check_same_thread=False
+
+
+        
         self.con = sqlite3.connect(name, check_same_thread=False)
         self.cursor = self.con.cursor()
         # Activation des clés étrangères pour garantir l'intégrité

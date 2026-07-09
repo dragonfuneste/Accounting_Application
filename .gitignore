@@ -7,3 +7,8 @@ build_temp/
 
 electron/release/
 electron/node_modules/
+
+electron/package-lock.json
+backend_app.spec
+package-lock.json
+build

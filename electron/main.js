@@ -32,7 +32,7 @@ function startBackend() {
   if (app.isPackaged) {
     // Production : lancer l'exe PyInstaller
     const isWin  = process.platform === 'win32';
-    const exeName = isWin ? 'accounting_server.exe' : 'accounting_server';
+    const exeName = isWin ? 'backend_app.exe' : 'backend_app';
     const exePath = path.join(backendDir, exeName);
 
     if (!fs.existsSync(exePath)) {
@@ -141,3 +141,9 @@ function stopBackend() {
     backendProcess = null;
   }
 }
+app.on('will-quit', () => {
+  if (pyProc !== null) {
+    pyProc.kill(); // Tue le backend proprement
+    pyProc = null;
+  }
+});
