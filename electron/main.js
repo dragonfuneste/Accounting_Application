@@ -141,9 +141,3 @@ function stopBackend() {
     backendProcess = null;
   }
 }
-app.on('will-quit', () => {
-  if (pyProc !== null) {
-    pyProc.kill(); // Tue le backend proprement
-    pyProc = null;
-  }
-});

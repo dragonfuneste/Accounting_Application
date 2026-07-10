@@ -1,0 +1,6 @@
+--- Rapport de Debug ---
+Dossier de l'exe/script : C:\Users\loube\Desktop\Accounting_Application
+Dossier _data cible : C:\Users\loube\Desktop\Accounting_Application\_data
+DB_PATH attendu : C:\Users\loube\Desktop\Accounting_Application\_data\Compte_rework.db
+Le fichier BDD existe ? : OUI
+Dossier actuel (cwd) : C:\Users\loube\Desktop\Accounting_Application
